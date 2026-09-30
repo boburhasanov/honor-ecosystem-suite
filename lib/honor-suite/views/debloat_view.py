@@ -4,11 +4,13 @@ Provides real-time inspection, search, multi-selection, debloating,
 and instant restoration for all system, user, uninstalled, and disabled apps.
 """
 
+import os
 import threading
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GLib
-from typing import Callable, List, Dict, Set
+gi.require_version('GdkPixbuf', '2.0')
+from gi.repository import Gtk, GdkPixbuf, GLib
+from typing import Callable, List, Dict, Set, Optional
 
 KNOWN_BLOATWARE = {
     "com.yandex.browser",
@@ -42,8 +44,39 @@ class DebloatView(Gtk.Box):
         self.search_query = ""
         self.all_packages_cache: List[Dict] = []
         self.selected_pkgs: Set[str] = set()
+        self.icon_cache: Dict[str, Optional[GdkPixbuf.Pixbuf]] = {}
 
         self._build_ui()
+
+    def get_icon_pixbuf(self, icon_name: str) -> Optional[GdkPixbuf.Pixbuf]:
+        if icon_name in self.icon_cache:
+            return self.icon_cache[icon_name]
+
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        candidates = [
+            os.path.join(script_dir, "..", "assets", "icons", icon_name),
+            os.path.join("/usr/local/lib/honor-suite", "assets", "icons", icon_name),
+            os.path.join(script_dir, "..", "..", "assets", "icons", icon_name)
+        ]
+        for p in candidates:
+            if os.path.exists(p):
+                try:
+                    pb = GdkPixbuf.Pixbuf.new_from_file_at_scale(p, 22, 22, True)
+                    self.icon_cache[icon_name] = pb
+                    return pb
+                except Exception:
+                    pass
+
+        theme = Gtk.IconTheme.get_default()
+        for name in [icon_name, "package-x-generic", "application-x-executable", "preferences-system"]:
+            try:
+                pb = theme.load_icon(name, 22, Gtk.IconLookupFlags.GENERIC_FALLBACK)
+                self.icon_cache[icon_name] = pb
+                return pb
+            except Exception:
+                pass
+
+        return None
 
     def _build_ui(self):
         # 1. Top Control Card (Xiaomi Flash Tool Style)
@@ -123,8 +156,8 @@ class DebloatView(Gtk.Box):
         scroller.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scroller.set_min_content_height(340)
 
-        # Model: [Selected(bool), AppName(str), PackageID(str), Type(str), Status(str)]
-        self.store = Gtk.ListStore(bool, str, str, str, str)
+        # Model: [Selected(bool), Icon(Pixbuf), AppName(str), PackageID(str), Type(str), Status(str)]
+        self.store = Gtk.ListStore(bool, GdkPixbuf.Pixbuf, str, str, str, str)
         self.tree = Gtk.TreeView(model=self.store)
         self.tree.get_style_context().add_class("view")
 
@@ -135,28 +168,36 @@ class DebloatView(Gtk.Box):
         col_chk.set_min_width(40)
         self.tree.append_column(col_chk)
 
-        # Column 1: App Name
-        col_name = Gtk.TreeViewColumn("App Name", Gtk.CellRendererText(), text=1)
-        col_name.set_min_width(200)
-        col_name.set_sort_column_id(1)
+        # Column 1: App Name with Vector/Theme Icon
+        col_name = Gtk.TreeViewColumn("App Name")
+        col_name.set_min_width(220)
+        col_name.set_sort_column_id(2)
+
+        icon_renderer = Gtk.CellRendererPixbuf()
+        text_renderer = Gtk.CellRendererText()
+
+        col_name.pack_start(icon_renderer, False)
+        col_name.pack_start(text_renderer, True)
+        col_name.add_attribute(icon_renderer, "pixbuf", 1)
+        col_name.add_attribute(text_renderer, "text", 2)
         self.tree.append_column(col_name)
 
         # Column 2: Package ID
-        col_pkg = Gtk.TreeViewColumn("Package Identifier", Gtk.CellRendererText(), text=2)
+        col_pkg = Gtk.TreeViewColumn("Package Identifier", Gtk.CellRendererText(), text=3)
         col_pkg.set_min_width(260)
-        col_pkg.set_sort_column_id(2)
+        col_pkg.set_sort_column_id(3)
         self.tree.append_column(col_pkg)
 
         # Column 3: Type (System vs User)
-        col_type = Gtk.TreeViewColumn("Category", Gtk.CellRendererText(), text=3)
+        col_type = Gtk.TreeViewColumn("Category", Gtk.CellRendererText(), text=4)
         col_type.set_min_width(90)
-        col_type.set_sort_column_id(3)
+        col_type.set_sort_column_id(4)
         self.tree.append_column(col_type)
 
         # Column 4: Status (Active, Disabled, Uninstalled)
-        col_st = Gtk.TreeViewColumn("Current State", Gtk.CellRendererText(), text=4)
+        col_st = Gtk.TreeViewColumn("Current State", Gtk.CellRendererText(), text=5)
         col_st.set_min_width(120)
-        col_st.set_sort_column_id(4)
+        col_st.set_sort_column_id(5)
         self.tree.append_column(col_st)
 
         scroller.add(self.tree)
@@ -214,7 +255,7 @@ class DebloatView(Gtk.Box):
     def on_cell_toggled(self, widget, path):
         it = self.store.get_iter(path)
         cur_val = self.store.get_value(it, 0)
-        pkg = self.store.get_value(it, 2)
+        pkg = self.store.get_value(it, 3)
         new_val = not cur_val
         self.store.set_value(it, 0, new_val)
         if new_val:
@@ -235,7 +276,7 @@ class DebloatView(Gtk.Box):
         target_state = any_unselected
         it = self.store.get_iter_first()
         while it:
-            pkg = self.store.get_value(it, 2)
+            pkg = self.store.get_value(it, 3)
             self.store.set_value(it, 0, target_state)
             if target_state:
                 self.selected_pkgs.add(pkg)
@@ -248,7 +289,7 @@ class DebloatView(Gtk.Box):
         it = self.store.get_iter_first()
         selected_count = 0
         while it:
-            pkg = self.store.get_value(it, 2)
+            pkg = self.store.get_value(it, 3)
             if pkg in KNOWN_BLOATWARE:
                 self.store.set_value(it, 0, True)
                 self.selected_pkgs.add(pkg)
@@ -278,6 +319,7 @@ class DebloatView(Gtk.Box):
             name = item["name"]
             pkg_type = item["type"]
             status = item["status"]
+            icon_name = item.get("icon", "package-x-generic")
 
             # Category filter
             if self.current_filter == "SYSTEM" and pkg_type != "System":
@@ -300,7 +342,8 @@ class DebloatView(Gtk.Box):
                 "Uninstalled": "🗑️ Uninstalled (Recycled)"
             }.get(status, status)
 
-            self.store.append([is_sel, name, pkg, pkg_type, status_display])
+            pixbuf = self.get_icon_pixbuf(icon_name)
+            self.store.append([is_sel, pixbuf, name, pkg, pkg_type, status_display])
 
         self._update_stats_label()
 

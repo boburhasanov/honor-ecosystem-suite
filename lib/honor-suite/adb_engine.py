@@ -11,6 +11,65 @@ import subprocess
 import re
 from typing import List, Dict, Optional, Tuple, Callable
 
+KNOWN_APP_REGISTRY = {
+    # Popular 3rd Party & User Apps
+    "com.instagram.android": ("Instagram", "instagram.svg"),
+    "com.linkedin.android": ("LinkedIn", "linkedin.svg"),
+    "com.snapchat.android": ("Snapchat", "snapchat.svg"),
+    "org.telegram.messenger": ("Telegram", "telegram.svg"),
+    "tg.televpn.messenger": ("TeleVPN", "telegram.svg"),
+    "com.whatsapp": ("WhatsApp", "whatsapp.svg"),
+    "com.openai.chatgpt": ("ChatGPT", "chatgpt.svg"),
+    "com.anthropic.claude": ("Claude AI", "claude.svg"),
+    "com.google.android.apps.bard": ("Google Gemini", "gemini.svg"),
+    "com.supercell.clashofclans": ("Clash of Clans", "clash.svg"),
+    "me.generalsx.zh": ("Generals Zero Hour", "clash.svg"),
+    "uz.uzum.app": ("Uzum Market", "uzum.svg"),
+    "uz.paynet.app": ("Paynet", "paynet.svg"),
+    "uz.rallix.app": ("Rallix", "rallix.svg"),
+    "uz.mobiuz.mobiservice": ("Mobiuz", "mobiuz.svg"),
+    "org.videolan.vlc": ("VLC Media Player", "vlc.svg"),
+    "com.edifier.edifierconnex": ("Edifier ConneX", "edifier.svg"),
+    "com.weather.forecast.dailyalert": ("Daily Weather", "weather.svg"),
+    "ru.yandex.yandexmaps": ("Yandex Maps", "yandex.svg"),
+    "ru.vk.store": ("RuStore", "rustore.svg"),
+    "com.newleaf.app.android.victor": ("ReelShort", "video-x-generic"),
+    "com.google.android.inputmethod.latin": ("Gboard (Google Keyboard)", "input-keyboard"),
+
+    # Common Google Apps
+    "com.google.android.youtube": ("YouTube", "video-x-generic"),
+    "com.android.chrome": ("Google Chrome", "web-browser"),
+    "com.google.android.apps.photos": ("Google Photos", "image-x-generic"),
+    "com.google.android.gm": ("Gmail", "mail-unread"),
+    "com.google.android.apps.maps": ("Google Maps", "mark-location"),
+    "com.google.android.googlequicksearchbox": ("Google Search", "preferences-system-search"),
+
+    # Facebook Services
+    "com.facebook.appmanager": ("Facebook App Manager", "system-run"),
+    "com.facebook.services": ("Facebook Services", "system-run"),
+    "com.facebook.system": ("Facebook System", "system-run"),
+
+    # Honor MagicOS Core Apps
+    "com.hihonor.camera": ("Honor Camera", "camera-photo"),
+    "com.hihonor.photos": ("Honor Gallery", "image-x-generic"),
+    "com.hihonor.contacts": ("Honor Contacts", "contact-new"),
+    "com.hihonor.deskclock": ("Honor Clock", "alarm"),
+    "com.hihonor.calendar": ("Honor Calendar", "x-office-calendar"),
+    "com.hihonor.calculator": ("Honor Calculator", "accessories-calculator"),
+    "com.hihonor.notepad": ("Honor Notes", "text-editor"),
+    "com.hihonor.systemmanager": ("Honor Optimizer", "security-high"),
+    "com.hihonor.filemanager": ("Honor Files", "system-file-manager"),
+    "com.hihonor.soundrecorder": ("Sound Recorder", "audio-input-microphone"),
+    "com.hihonor.compass": ("Honor Compass", "find-location"),
+    "com.hihonor.email": ("Honor Email", "mail-unread"),
+    "com.hihonor.gamecenter": ("Honor Game Center", "applications-games"),
+    "com.hihonor.wallet": ("Honor Wallet", "emblem-money"),
+    "com.hihonor.tips": ("Honor Tips", "dialog-information"),
+    "com.hihonor.hnvideoplayer": ("Honor Video", "video-x-generic"),
+    "com.hihonor.hnmusicplayer": ("Honor Music", "audio-x-generic"),
+    "com.hihonor.android.totemweather": ("Honor Weather", "weather.svg"),
+}
+
 class AdbEngine:
     def __init__(self):
         self._target: Optional[str] = None
@@ -234,16 +293,34 @@ class AdbEngine:
 
             pkg_type = "System" if is_sys else "User"
 
-            # Clean friendly label
-            friendly = pkg.split(".")[-1].replace("_", " ").title()
-            if "honor" in pkg.lower():
-                friendly = "Honor " + friendly
-            elif "google" in pkg.lower():
-                friendly = "Google " + friendly
+            # Clean friendly label and icon resolution
+            if pkg in KNOWN_APP_REGISTRY:
+                friendly, icon_name = KNOWN_APP_REGISTRY[pkg]
+            else:
+                parts = pkg.split(".")
+                last = parts[-1]
+                if last.lower() in ["android", "app", "release", "mobile", "service", "client"] and len(parts) >= 2:
+                    raw_name = parts[-2]
+                else:
+                    raw_name = last
+                raw_name = raw_name.replace("_", " ").title()
+                if "honor" in pkg.lower():
+                    friendly = f"Honor {raw_name}"
+                    icon_name = "honor.svg"
+                elif "google" in pkg.lower() or "android" in pkg.lower():
+                    friendly = f"Android {raw_name}" if "android" in pkg.lower() and "google" not in pkg.lower() else f"Google {raw_name}"
+                    icon_name = "android.svg"
+                elif pkg_type == "User":
+                    friendly = raw_name
+                    icon_name = "package-x-generic"
+                else:
+                    friendly = raw_name
+                    icon_name = "preferences-system"
 
             packages.append({
                 "pkg": pkg,
                 "name": friendly,
+                "icon": icon_name,
                 "type": pkg_type,
                 "status": status,
                 "selected": False

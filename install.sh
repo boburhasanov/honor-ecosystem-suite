@@ -75,6 +75,9 @@ mkdir -p /usr/share/pixmaps
 # Copy files
 rm -rf /usr/local/lib/honor-suite/*
 cp -r "${SCRIPT_DIR}/lib/honor-suite/"* /usr/local/lib/honor-suite/
+if [ -d "${SCRIPT_DIR}/assets" ]; then
+    cp -r "${SCRIPT_DIR}/assets" /usr/local/lib/honor-suite/
+fi
 cp "${SCRIPT_DIR}/bin/honor-control-center" /usr/local/bin/honor-control-center
 chmod 755 /usr/local/bin/honor-control-center
 
