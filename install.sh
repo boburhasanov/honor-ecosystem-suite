@@ -83,6 +83,16 @@ cp "${SCRIPT_DIR}/desktop/honor-control-center.desktop" /usr/share/applications/
 cp "${SCRIPT_DIR}/desktop/honor-hub.svg" /usr/share/icons/hicolor/scalable/apps/
 cp "${SCRIPT_DIR}/desktop/honor-hub.svg" /usr/share/pixmaps/honor-hub.svg
 
+# Install udev auto-wifi trigger
+cp "${SCRIPT_DIR}/bin/honor-auto-wifi" /usr/local/bin/honor-auto-wifi
+chmod 755 /usr/local/bin/honor-auto-wifi
+if [ -d "${SCRIPT_DIR}/udev" ]; then
+    cp "${SCRIPT_DIR}/udev/99-honor-auto-wifi.rules" /etc/udev/rules.d/
+    if command -v udevadm >/dev/null 2>&1; then
+        udevadm control --reload-rules || true
+    fi
+fi
+
 # Update desktop cache
 if command -v update-desktop-database >/dev/null 2>&1; then
     update-desktop-database -q /usr/share/applications || true

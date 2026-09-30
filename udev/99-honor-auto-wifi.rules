@@ -1,0 +1,2 @@
+# Trigger wireless mode whenever Honor 400 Pro is plugged in
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="339b", RUN+="/usr/local/bin/honor-auto-wifi"

@@ -1,0 +1,9 @@
+#!/bin/bash
+# Auto-switch Honor 400 Pro to Wireless ADB mode when USB is connected
+sleep 1
+su bobur -c "adb -d tcpip 5555" >/dev/null 2>&1
+sleep 1
+GW=$(ip route show default | awk "{print \$3}")
+if [ -n "$GW" ]; then
+    su bobur -c "adb connect $GW:5555" >/dev/null 2>&1
+fi

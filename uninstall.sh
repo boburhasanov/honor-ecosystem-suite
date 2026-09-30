@@ -20,10 +20,15 @@ fi
 echo -e "${BLUE}[*] Removing Honor Ecosystem Suite from system...${NC}"
 
 rm -f /usr/local/bin/honor-control-center
+rm -f /usr/local/bin/honor-auto-wifi
 rm -rf /usr/local/lib/honor-suite
 rm -f /usr/share/applications/honor-control-center.desktop
 rm -f /usr/share/icons/hicolor/scalable/apps/honor-hub.svg
 rm -f /usr/share/pixmaps/honor-hub.svg
+rm -f /etc/udev/rules.d/99-honor-auto-wifi.rules
+if command -v udevadm >/dev/null 2>&1; then
+    udevadm control --reload-rules || true
+fi
 
 if command -v update-desktop-database >/dev/null 2>&1; then
     update-desktop-database -q /usr/share/applications || true
