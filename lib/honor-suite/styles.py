@@ -113,6 +113,15 @@ window {
     font-size: 0.8em;
 }
 
+.badge-inactive {
+    background-color: #ef4444;
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 3px 10px;
+    font-size: 0.8em;
+}
+
 .badge-cyan {
     background-color: #0284c7;
     color: #ffffff;

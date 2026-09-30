@@ -73,38 +73,53 @@ class MirrorView(Gtk.Box):
         self.pack_start(card, False, False, 0)
 
     def on_launch_mirror(self, widget):
-        target = self.engine.get_target()
-        preset = self.preset_combo.get_active_id() or "1440p"
+        self.show_msg("Checking device connection...")
+        def worker():
+            if not self.engine.is_connected():
+                self.engine.ensure_connected(max_retries=2)
 
-        if preset == "1440p":
-            max_size = "1440"
-            bit_rate = "16M"
-            max_fps = "60"
-        elif preset == "1080p":
-            max_size = "1080"
-            bit_rate = "10M"
-            max_fps = "60"
-        else:
-            max_size = "720"
-            bit_rate = "4M"
-            max_fps = "30"
+            if not self.engine.is_connected():
+                def err():
+                    self.show_msg("⚠️ Device Offline! Please turn on 'Wireless Debugging' in Developer Options on your phone.")
+                GLib.idle_add(err)
+                return
 
-        cmd = [
-            "/usr/local/bin/scrcpy",
-            "-s", target,
-            f"--window-title=Honor 400 Pro ({preset} 60 FPS)",
-            "--video-codec=h264",
-            "-m", max_size,
-            "-b", bit_rate,
-            f"--max-fps={max_fps}"
-        ]
+            target = self.engine.get_target()
+            preset = self.preset_combo.get_active_id() or "1440p"
 
-        if self.chk_stay_awake.get_active():
-            cmd.append("--stay-awake")
-        if self.chk_screen_off.get_active():
-            cmd.append("--turn-screen-off")
-        if not self.chk_audio.get_active():
-            cmd.append("--no-audio")
+            if preset == "1440p":
+                max_size = "1440"
+                bit_rate = "16M"
+                max_fps = "60"
+            elif preset == "1080p":
+                max_size = "1080"
+                bit_rate = "10M"
+                max_fps = "60"
+            else:
+                max_size = "720"
+                bit_rate = "4M"
+                max_fps = "30"
 
-        self.show_msg(f"Launching Wireless Mirror at {preset}...")
-        subprocess.Popen(cmd)
+            cmd = [
+                "/usr/local/bin/scrcpy",
+                "-s", target,
+                f"--window-title=Honor 400 Pro ({preset} 60 FPS)",
+                "--video-codec=h264",
+                "-m", max_size,
+                "-b", bit_rate,
+                f"--max-fps={max_fps}"
+            ]
+
+            if self.chk_stay_awake.get_active():
+                cmd.append("--stay-awake")
+            if self.chk_screen_off.get_active():
+                cmd.append("--turn-screen-off")
+            if not self.chk_audio.get_active():
+                cmd.append("--no-audio")
+
+            def launch():
+                self.show_msg(f"Launching Wireless Mirror at {preset}...")
+                subprocess.Popen(cmd)
+            GLib.idle_add(launch)
+
+        threading.Thread(target=worker, daemon=True).start()

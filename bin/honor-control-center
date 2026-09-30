@@ -177,6 +177,8 @@ class HonorSuiteApp(Gtk.Window):
             else:
                 btn.get_style_context().remove_class("active")
 
+        self.update_connection_status()
+
         # Refresh specific tab if needed
         if tab_id == "dashboard":
             self.v_dashboard.refresh()
@@ -184,6 +186,23 @@ class HonorSuiteApp(Gtk.Window):
             self.v_files.navigate_to(self.v_files.current_path)
         elif tab_id == "debloat":
             self.v_debloat.refresh()
+
+    def update_connection_status(self):
+        def check():
+            connected = self.engine.is_connected()
+            def apply():
+                ctx = self.side_status_badge.get_style_context()
+                if connected:
+                    self.side_status_badge.set_text("🟢 Honor 400 Pro")
+                    ctx.remove_class("badge-inactive")
+                    ctx.add_class("badge-active")
+                else:
+                    self.side_status_badge.set_text("🔴 Offline (Check Debugging)")
+                    ctx.remove_class("badge-active")
+                    ctx.add_class("badge-inactive")
+                return False
+            GLib.idle_add(apply)
+        threading.Thread(target=check, daemon=True).start()
 
     def refresh_active_view(self):
         curr = self.stack.get_visible_child_name()
