@@ -43,6 +43,8 @@ KNOWN_APP_REGISTRY = {
     "com.google.android.gm": ("Gmail", "mail-unread"),
     "com.google.android.apps.maps": ("Google Maps", "mark-location"),
     "com.google.android.googlequicksearchbox": ("Google Search", "preferences-system-search"),
+    "com.google.android.videos": ("Google TV", "video-x-generic"),
+    "com.google.android.apps.tachyon": ("Google Meet", "call-start"),
 
     # Facebook Services
     "com.facebook.appmanager": ("Facebook App Manager", "system-run"),

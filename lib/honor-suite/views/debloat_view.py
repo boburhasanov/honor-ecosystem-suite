@@ -31,6 +31,8 @@ KNOWN_BLOATWARE = {
     "com.facebook.appmanager",
     "com.facebook.services",
     "com.google.android.apps.bard",
+    "com.google.android.videos",
+    "com.google.android.apps.tachyon",
 }
 
 class DebloatView(Gtk.Box):
