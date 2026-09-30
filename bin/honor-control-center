@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+"""
+Honor Ecosystem Hub v4.0 (MagicOS PC Suite)
+Engineered following Design-First, Modular-Components, and Zero-Resource Policy.
+Authentic MagicOS dual-pane layout, interactive wireless phone storage browser,
+real-time MB/s speedometer, multi-screen collaboration, and wireless debloater.
+"""
+
+import sys
+import os
+import subprocess
+import threading
+import gi
+
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk, Gdk, GLib
+
+# Add suite directory to python path (supports both portable and installed modes)
+_script_dir = os.path.dirname(os.path.realpath(__file__))
+_repo_lib = os.path.abspath(os.path.join(_script_dir, "..", "lib", "honor-suite"))
+if os.path.exists(_repo_lib):
+    sys.path.insert(0, _repo_lib)
+else:
+    sys.path.insert(0, '/usr/local/lib/honor-suite')
+
+from styles import MAGIC_OS_CSS
+from adb_engine import AdbEngine
+from views.dashboard_view import DashboardView
+from views.file_manager_view import FileManagerView
+from views.transfer_view import TransferView
+from views.mirror_view import MirrorView
+from views.debloat_view import DebloatView
+
+class HonorSuiteApp(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="Honor Ecosystem Hub • MagicOS Suite")
+        self.set_default_size(920, 680)
+        self.set_position(Gtk.WindowPosition.CENTER)
+
+        # Inject Design-First MagicOS CSS
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_data(MAGIC_OS_CSS.encode('utf-8'))
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+
+        self.engine = AdbEngine()
+
+        # Header Bar
+        header = Gtk.HeaderBar()
+        header.set_show_close_button(True)
+        header.set_title("Honor Ecosystem Hub")
+        header.set_subtitle("MagicOS 9.0 • Honor 400 Pro Wireless Suite")
+        self.set_titlebar(header)
+
+        # Refresh button in header
+        refresh_btn = Gtk.Button.new_from_icon_name("view-refresh-symbolic", Gtk.IconSize.BUTTON)
+        if not refresh_btn.get_image():
+            refresh_btn = Gtk.Button.new_from_icon_name("view-refresh", Gtk.IconSize.BUTTON)
+        refresh_btn.set_tooltip_text("Refresh Device Status")
+        refresh_btn.connect("clicked", lambda b: self.refresh_active_view())
+        header.pack_end(refresh_btn)
+
+        # Main horizontal container (Sidebar + Content)
+        main_h_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        self.add(main_h_box)
+
+        # 1. Left Sidebar
+        sidebar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        sidebar.set_size_request(210, -1)
+        sidebar.get_style_context().add_class("sidebar")
+
+        brand_lbl = Gtk.Label(label="HONOR SUITE", xalign=0)
+        brand_lbl.get_style_context().add_class("sidebar-title")
+        sidebar.pack_start(brand_lbl, False, False, 0)
+
+        sub_lbl = Gtk.Label(label="MagicOS Wireless Bridge", xalign=0)
+        sub_lbl.get_style_context().add_class("sidebar-subtitle")
+        sidebar.pack_start(sub_lbl, False, False, 0)
+
+        # Navigation buttons
+        self.nav_buttons = {}
+        tabs = [
+            ("dashboard", "📊  Dashboard"),
+            ("files",     "📁  Phone Storage"),
+            ("transfer",  "⚡  Fast Beam (70 MB/s)"),
+            ("mirror",    "🖥️  Screen Mirror"),
+            ("debloat",   "🧹  Debloater"),
+        ]
+
+        for tab_id, tab_label in tabs:
+            btn = Gtk.Button.new_with_label(tab_label)
+            btn.get_style_context().add_class("sidebar-btn")
+            btn.connect("clicked", lambda b, tid=tab_id: self.switch_tab(tid))
+            sidebar.pack_start(btn, False, False, 0)
+            self.nav_buttons[tab_id] = btn
+
+        # Separator
+        sidebar.pack_start(Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL), False, False, 10)
+
+        # Ecosystem shortcuts
+        eco_title = Gtk.Label(label="AIRDROP & BLUETOOTH", xalign=0)
+        eco_title.get_style_context().add_class("sidebar-subtitle")
+        sidebar.pack_start(eco_title, False, False, 0)
+
+        localsend_btn = Gtk.Button.new_with_label("📦  LocalSend (Auto-Wake)")
+        localsend_btn.get_style_context().add_class("sidebar-btn")
+        localsend_btn.connect("clicked", self.on_open_localsend)
+        sidebar.pack_start(localsend_btn, False, False, 0)
+
+        bt_btn = Gtk.Button.new_with_label("📶  Bluetooth Beam")
+        bt_btn.get_style_context().add_class("sidebar-btn")
+        bt_btn.connect("clicked", lambda b: subprocess.Popen(["blueman-sendto", "-d=DC:A2:81:D4:85:D1"]))
+        sidebar.pack_start(bt_btn, False, False, 0)
+
+        # Bottom connection pill in sidebar
+        sidebar.pack_end(Gtk.Box(), True, True, 0)  # spacer
+        self.side_status_badge = Gtk.Label(label="🟢 Honor 400 Pro")
+        self.side_status_badge.get_style_context().add_class("badge-active")
+        sidebar.pack_end(self.side_status_badge, False, False, 12)
+
+        main_h_box.pack_start(sidebar, False, False, 0)
+
+        # 2. Right Workspace Content
+        content_v_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        main_h_box.pack_start(content_v_box, True, True, 0)
+
+        # Info bar banner
+        self.info_bar = Gtk.InfoBar()
+        self.info_bar.set_show_close_button(True)
+        self.info_bar.connect("response", lambda b, r: self.info_bar.set_visible(False))
+        self.info_bar_lbl = Gtk.Label()
+        self.info_bar.get_content_area().add(self.info_bar_lbl)
+        self.info_bar.set_no_show_all(True)
+        self.info_bar.set_visible(False)
+        content_v_box.pack_start(self.info_bar, False, False, 0)
+
+        # Stack container
+        self.stack = Gtk.Stack()
+        self.stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
+        self.stack.set_transition_duration(180)
+
+        # Build individual views
+        self.v_dashboard = DashboardView(self.engine, self.switch_tab, self.show_message)
+        self.v_files = FileManagerView(self.engine, self.show_message)
+        self.v_transfer = TransferView(self.engine, self.show_message)
+        self.v_mirror = MirrorView(self.engine, self.show_message)
+        self.v_debloat = DebloatView(self.engine, self.show_message)
+
+        self.stack.add_named(self.v_dashboard, "dashboard")
+        self.stack.add_named(self.v_files, "files")
+        self.stack.add_named(self.v_transfer, "transfer")
+        self.stack.add_named(self.v_mirror, "mirror")
+        self.stack.add_named(self.v_debloat, "debloat")
+
+        content_v_box.pack_start(self.stack, True, True, 0)
+
+        # Initial tab
+        self.switch_tab("dashboard")
+
+    def show_message(self, text: str, msg_type: Gtk.MessageType = Gtk.MessageType.INFO):
+        if not text:
+            self.info_bar.set_visible(False)
+            return
+        self.info_bar_lbl.set_text(text)
+        self.info_bar.set_message_type(msg_type)
+        self.info_bar.set_visible(True)
+        GLib.timeout_add_seconds(5, lambda: self.info_bar.set_visible(False))
+
+    def switch_tab(self, tab_id: str):
+        self.stack.set_visible_child_name(tab_id)
+        for tid, btn in self.nav_buttons.items():
+            if tid == tab_id:
+                btn.get_style_context().add_class("active")
+            else:
+                btn.get_style_context().remove_class("active")
+
+        # Refresh specific tab if needed
+        if tab_id == "dashboard":
+            self.v_dashboard.refresh()
+        elif tab_id == "files":
+            self.v_files.navigate_to(self.v_files.current_path)
+        elif tab_id == "debloat":
+            self.v_debloat.refresh()
+
+    def refresh_active_view(self):
+        curr = self.stack.get_visible_child_name()
+        self.switch_tab(curr)
+
+    def on_open_localsend(self, widget):
+        self.show_message("Waking LocalSend on phone and opening desktop client...")
+        def worker():
+            target = self.engine.get_target()
+            subprocess.run(["adb", "-s", target, "shell", "monkey", "-p", "org.localsend.localsend_app", "-c", "android.intent.category.LAUNCHER", "1"], capture_output=True)
+            subprocess.Popen(["flatpak", "run", "org.localsend.localsend_app"])
+            def done():
+                self.show_message("LocalSend active on both devices!")
+            GLib.idle_add(done)
+        threading.Thread(target=worker, daemon=True).start()
+
+def main():
+    app = HonorSuiteApp()
+    app.connect("destroy", Gtk.main_quit)
+    app.show_all()
+    Gtk.main()
+
+if __name__ == "__main__":
+    main()

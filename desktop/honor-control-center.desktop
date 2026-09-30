@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Honor Ecosystem Hub
+GenericName=Honor Device Wireless Suite
+Comment=Wireless screen mirror, high-speed file beam, real-time telemetry, and debloater for Honor & MagicOS devices
+Exec=/usr/local/bin/honor-control-center
+Icon=honor-hub
+Terminal=false
+Type=Application
+Categories=Utility;Network;Settings;
+StartupNotify=true
+Keywords=honor;magicos;wireless;adb;scrcpy;transfer;beam;debloat;mirror;telemetry;
