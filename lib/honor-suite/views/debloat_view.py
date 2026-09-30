@@ -28,6 +28,7 @@ KNOWN_BLOATWARE = {
     "com.facebook.system",
     "com.facebook.appmanager",
     "com.facebook.services",
+    "com.google.android.apps.bard",
 }
 
 class DebloatView(Gtk.Box):
