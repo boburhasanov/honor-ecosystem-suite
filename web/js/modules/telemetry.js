@@ -4,6 +4,11 @@
  */
 
 export function initTelemetry() {
+  // Listen for real-time background telemetry events from Python daemon
+  window.addEventListener("telemetry_update", (e) => {
+    if (e.detail) updateTelemetryView(e.detail);
+  });
+
   window.refreshTelemetry = async function () {
     if (!window.pywebview) return;
     try {

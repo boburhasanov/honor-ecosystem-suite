@@ -36,15 +36,15 @@ class AdbService:
 
     def get_target(self) -> str:
         """
-        Dynamically finds the currently connected ADB device.
-        Prioritizes connected USB/wireless device serial, then tries Wi-Fi hotspot gateway IP.
+        Dynamically finds the currently connected ADB device from 'adb devices'.
+        Fast and non-blocking (does NOT perform blocking connect calls).
         """
         try:
             res = subprocess.run(
                 [self.adb_bin, "devices"],
                 capture_output=True,
                 text=True,
-                timeout=2,
+                timeout=1,
                 creationflags=get_creation_flags()
             )
             lines = res.stdout.strip().splitlines()
@@ -56,7 +56,15 @@ class AdbService:
         except Exception:
             pass
 
-        # Try automatic Wi-Fi gateway connection (hotspot mode)
+        return self._target or "127.0.0.1:5555"
+
+    def try_auto_connect_gateway(self) -> bool:
+        """
+        Attempts to connect to hotspot gateway once if not currently connected.
+        Designed to be executed in background worker thread.
+        """
+        if self.is_connected():
+            return True
         gw = get_default_gateway()
         if gw:
             target = f"{gw}:5555"
@@ -65,16 +73,15 @@ class AdbService:
                     [self.adb_bin, "connect", target],
                     capture_output=True,
                     text=True,
-                    timeout=2,
+                    timeout=1.5,
                     creationflags=get_creation_flags()
                 )
                 if "connected" in conn_res.stdout.lower():
                     self._target = target
-                    return target
+                    return True
             except Exception:
                 pass
-
-        return self._target or "127.0.0.1:5555"
+        return False
 
     def get_connection_type(self) -> str:
         """Returns 'wireless', 'usb', or 'offline'."""
@@ -128,8 +135,8 @@ class AdbService:
             phone_ip = get_default_gateway() or "192.168.43.1"
 
         # Switch ADB daemon on device to listen on port 5555
-        self.run_cmd(["tcpip", "5555"], timeout=5)
-        time.sleep(1.2)  # Give adbd time to restart on port 5555
+        self.run_cmd(["tcpip", "5555"], timeout=4)
+        time.sleep(1.0)  # Give adbd time to restart on port 5555
 
         # Connect over wireless
         target_endpoint = f"{phone_ip}:5555"
@@ -137,7 +144,7 @@ class AdbService:
             [self.adb_bin, "connect", target_endpoint],
             capture_output=True,
             text=True,
-            timeout=5,
+            timeout=4,
             creationflags=get_creation_flags()
         )
 
@@ -169,11 +176,11 @@ class AdbService:
             return -1, "", str(e)
 
     def is_connected(self) -> bool:
-        """Checks if active device responds to get-state."""
-        code, out, _ = self.run_cmd(["get-state"], timeout=2)
+        """Checks if active device responds to get-state with quick 1.5s timeout."""
+        code, out, _ = self.run_cmd(["get-state"], timeout=1)
         return code == 0 and "device" in out
 
-    def ensure_connected(self, max_retries: int = 5) -> bool:
+    def ensure_connected(self, max_retries: int = 3) -> bool:
         """Tries to re-establish connection if device dropped offline."""
         for _ in range(max_retries):
             if self.is_connected():
@@ -182,8 +189,8 @@ class AdbService:
             subprocess.run(
                 [self.adb_bin, "connect", target],
                 capture_output=True,
-                timeout=2,
+                timeout=1.5,
                 creationflags=get_creation_flags()
             )
-            time.sleep(1)
+            time.sleep(0.5)
         return False

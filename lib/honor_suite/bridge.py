@@ -1,11 +1,13 @@
 """
 Bi-directional Bridge API for Honor Ecosystem Suite.
 Connects the high-performance async Python backend to the 120 FPS GPU-accelerated Web UI.
+Features dedicated background daemon monitoring to prevent any GUI freezing or '(Не отвечает)'.
 """
 
 import os
 import sys
 import json
+import time
 import threading
 from typing import Dict, Any, List, Optional
 import webview
@@ -28,6 +30,12 @@ class HonorBridgeApi:
         self.browser = FileBrowserService(self.adb)
         self._beam_thread: Optional[threading.Thread] = None
 
+        # Thread-safe telemetry cache (guarantees 0ms response to JS)
+        self._latest_telemetry = self.telemetry.get_overview()
+        self._stop_monitor = False
+        self._monitor_thread = threading.Thread(target=self._background_monitor_loop, daemon=True)
+        self._monitor_thread.start()
+
     def set_window(self, window):
         self.window = window
 
@@ -42,14 +50,33 @@ class HonorBridgeApi:
         except Exception:
             pass
 
+    def _background_monitor_loop(self):
+        """Continuously polls hardware status in background without blocking GUI."""
+        counter = 0
+        while not self._stop_monitor:
+            try:
+                # Every ~15 seconds, try auto-connecting to hotspot gateway if offline
+                if counter % 5 == 0 and not self.adb.is_connected():
+                    self.adb.try_auto_connect_gateway()
+
+                data = self.telemetry.get_overview()
+                self._latest_telemetry = data
+                self.emit_event("telemetry_update", data)
+            except Exception:
+                pass
+            counter += 1
+            time.sleep(3.0)
+
     # 1. Telemetry & Connection API
     def get_telemetry(self) -> Dict[str, Any]:
-        """Polls full hardware telemetry (battery, RAM meminfo, storage, ping)."""
-        return self.telemetry.get_overview()
+        """Returns the latest hardware telemetry instantly in 0ms."""
+        return self._latest_telemetry or self.telemetry.get_overview()
 
     def enable_wireless_mode(self) -> Dict[str, Any]:
         """Triggers 1-Click USB-to-Wireless Magic Handshake (tcpip 5555 + auto-connect)."""
         ok, msg, target = self.adb.enable_wireless_mode()
+        # Immediately refresh cached telemetry
+        self._latest_telemetry = self.telemetry.get_overview()
         return {"success": ok, "message": msg, "target": target}
 
     # 2. Fast Beam API
