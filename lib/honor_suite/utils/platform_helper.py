@@ -26,8 +26,73 @@ def get_creation_flags() -> int:
     return 0
 
 def find_executable(name: str) -> Optional[str]:
-    """Finds binary in PATH or returns None."""
-    return shutil.which(name)
+    """
+    Finds binary in PATH or checks standard WinGet, Android SDK, and portable directories.
+    Guarantees discovery even if PATH is not updated in the current environment.
+    """
+    # 1. Standard PATH lookup
+    p = shutil.which(name)
+    if p:
+        return p
+
+    if IS_WINDOWS:
+        local_app = Path(os.environ.get("LOCALAPPDATA", ""))
+        prog_files = Path(os.environ.get("ProgramFiles", "C:\\Program Files"))
+
+        # 2. Check WinGet Links
+        link_candidate = local_app / "Microsoft" / "WinGet" / "Links" / f"{name}.exe"
+        if link_candidate.is_file():
+            return str(link_candidate)
+
+        # 3. Check specific well-known paths
+        if name == "adb":
+            candidates = [
+                local_app / "Microsoft" / "WinGet" / "Packages" / "Google.PlatformTools_Microsoft.Winget.Source_8wekyb3d8bbwe" / "platform-tools" / "adb.exe",
+                local_app / "Microsoft" / "WinGet" / "Packages" / "Genymobile.scrcpy_Microsoft.Winget.Source_8wekyb3d8bbwe" / "scrcpy-win64-v5.0.1" / "adb.exe",
+                local_app / "Android" / "Sdk" / "platform-tools" / "adb.exe",
+                prog_files / "scrcpy" / "adb.exe"
+            ]
+            for c in candidates:
+                if c.is_file():
+                    return str(c)
+
+        elif name == "scrcpy":
+            candidates = [
+                local_app / "Microsoft" / "WinGet" / "Packages" / "Genymobile.scrcpy_Microsoft.Winget.Source_8wekyb3d8bbwe" / "scrcpy-win64-v5.0.1" / "scrcpy.exe",
+                prog_files / "scrcpy" / "scrcpy.exe"
+            ]
+            for c in candidates:
+                if c.is_file():
+                    return str(c)
+
+        elif name == "ffmpeg":
+            candidates = [
+                local_app / "Microsoft" / "WinGet" / "Packages" / "Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe" / "ffmpeg-9.0.2-full_build" / "bin" / "ffmpeg.exe",
+                prog_files / "ffmpeg" / "bin" / "ffmpeg.exe"
+            ]
+            for c in candidates:
+                if c.is_file():
+                    return str(c)
+
+        # 4. Fallback search inside WinGet Packages directory
+        winget_dir = local_app / "Microsoft" / "WinGet" / "Packages"
+        if winget_dir.is_dir():
+            for match in winget_dir.glob(f"**/{name}.exe"):
+                if match.is_file():
+                    return str(match)
+
+    elif IS_LINUX:
+        linux_candidates = [
+            f"/usr/bin/{name}",
+            f"/usr/local/bin/{name}",
+            f"/snap/bin/{name}",
+            os.path.expanduser(f"~/.local/bin/{name}")
+        ]
+        for c in linux_candidates:
+            if os.path.isfile(c) and os.access(c, os.X_OK):
+                return c
+
+    return None
 
 def get_app_cache_dir() -> Path:
     """Returns platform-appropriate cache directory."""

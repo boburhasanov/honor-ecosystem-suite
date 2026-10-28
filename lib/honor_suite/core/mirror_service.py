@@ -25,10 +25,7 @@ class MirrorService:
         Launches Scrcpy screen mirror in a standalone GUI process.
         """
         if not self.adb.is_connected():
-            self.adb.ensure_connected(max_retries=2)
-
-        if not self.adb.is_connected():
-            return False, "Device is offline. Turn on Wireless Debugging or connect USB."
+            return False, "Qurilma ulanmagan. Avval telefonni USB yoki Wi-Fi orqali ulang."
 
         target = self.adb.get_target()
 

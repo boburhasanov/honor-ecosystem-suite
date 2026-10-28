@@ -17,7 +17,7 @@ export function initFiles() {
     tbody.innerHTML = "";
 
     if (items.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-dim); padding: 30px;">Directory is empty.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-dim); padding: 30px;">📁 Qurilma ulanmagan yoki papka bo\'sh.</td></tr>';
       document.getElementById("fileStatusFooter").textContent = "0 items";
       return;
     }

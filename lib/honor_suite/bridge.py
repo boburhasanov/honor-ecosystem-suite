@@ -53,10 +53,19 @@ class HonorBridgeApi:
     def _background_monitor_loop(self):
         """Continuously polls hardware status in background without blocking GUI."""
         counter = 0
+        was_connected = False
         while not self._stop_monitor:
             try:
+                is_conn = self.adb.is_connected()
+                if is_conn and not was_connected:
+                    was_connected = True
+                    # Pre-warm package list cache in a background worker
+                    threading.Thread(target=lambda: self.pm.get_all_packages(force_refresh=True), daemon=True).start()
+                elif not is_conn:
+                    was_connected = False
+
                 # Every ~15 seconds, try auto-connecting to hotspot gateway if offline
-                if counter % 5 == 0 and not self.adb.is_connected():
+                if counter % 5 == 0 and not is_conn:
                     self.adb.try_auto_connect_gateway()
 
                 data = self.telemetry.get_overview()

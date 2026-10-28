@@ -15,6 +15,9 @@ class FileBrowserService:
         """
         High-performance POSIX directory lister executing single-pass stat on device.
         """
+        if not self.adb.is_connected():
+            return []
+
         clean_path = remote_path.rstrip("/") or "/storage/emulated/0"
 
         script = f"""

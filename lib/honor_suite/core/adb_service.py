@@ -34,11 +34,14 @@ class AdbService:
     def is_cancelled(self) -> bool:
         return self.cancel_requested
 
-    def get_target(self) -> str:
+    def is_connected(self) -> bool:
         """
-        Dynamically finds the currently connected ADB device from 'adb devices'.
-        Fast and non-blocking (does NOT perform blocking connect calls).
+        Instant non-blocking check if any device is currently connected.
+        Executes 'adb devices' with a 1-second timeout.
+        If no device in list, returns False immediately in ~20ms!
         """
+        if not self.adb_bin:
+            return False
         try:
             res = subprocess.run(
                 [self.adb_bin, "devices"],
@@ -47,21 +50,28 @@ class AdbService:
                 timeout=1,
                 creationflags=get_creation_flags()
             )
-            lines = res.stdout.strip().splitlines()
-            for line in lines[1:]:
+            for line in res.stdout.strip().splitlines()[1:]:
                 parts = line.split()
                 if len(parts) >= 2 and parts[1] == "device":
                     self._target = parts[0]
-                    return self._target
+                    return True
         except Exception:
             pass
+        return False
 
+    def get_target(self) -> str:
+        """
+        Dynamically returns the currently connected device serial or IP.
+        Fast and non-blocking (never executes blocking connect calls).
+        """
+        if self.is_connected():
+            return self._target or "device"
         return self._target or "127.0.0.1:5555"
 
     def try_auto_connect_gateway(self) -> bool:
         """
         Attempts to connect to hotspot gateway once if not currently connected.
-        Designed to be executed in background worker thread.
+        Runs safely in background worker thread.
         """
         if self.is_connected():
             return True
@@ -159,6 +169,9 @@ class AdbService:
         Executes ADB command targeted to current active device.
         Guarantees non-flickering execution on Windows with creationflags.
         """
+        if not self.adb_bin:
+            return -1, "", "ADB executable not found"
+
         target = self.get_target()
         cmd = [self.adb_bin, "-s", target] + args
         try:
@@ -174,11 +187,6 @@ class AdbService:
             return -1, "", "Command timed out"
         except Exception as e:
             return -1, "", str(e)
-
-    def is_connected(self) -> bool:
-        """Checks if active device responds to get-state with quick 1.5s timeout."""
-        code, out, _ = self.run_cmd(["get-state"], timeout=1)
-        return code == 0 and "device" in out
 
     def ensure_connected(self, max_retries: int = 3) -> bool:
         """Tries to re-establish connection if device dropped offline."""

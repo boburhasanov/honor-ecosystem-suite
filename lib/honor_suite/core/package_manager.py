@@ -31,10 +31,14 @@ class PackageManagerService:
         if not force_refresh and self._cached_packages and (now - self._cache_time < self._cache_ttl):
             return self._cached_packages
 
-        code_u, out_u, _ = self.adb.run_cmd(["shell", "pm", "list", "packages", "-u"], timeout=8)
-        code_s, out_s, _ = self.adb.run_cmd(["shell", "pm", "list", "packages", "-u", "-s"], timeout=8)
-        code_d, out_d, _ = self.adb.run_cmd(["shell", "pm", "list", "packages", "-d"], timeout=8)
-        code_c, out_c, _ = self.adb.run_cmd(["shell", "pm", "list", "packages"], timeout=8)
+        # If device is not connected, instantly return empty without freezing
+        if not self.adb.is_connected():
+            return []
+
+        code_u, out_u, _ = self.adb.run_cmd(["shell", "pm", "list", "packages", "-u"], timeout=4)
+        code_s, out_s, _ = self.adb.run_cmd(["shell", "pm", "list", "packages", "-u", "-s"], timeout=4)
+        code_d, out_d, _ = self.adb.run_cmd(["shell", "pm", "list", "packages", "-d"], timeout=4)
+        code_c, out_c, _ = self.adb.run_cmd(["shell", "pm", "list", "packages"], timeout=4)
 
         all_pkgs = out_u.splitlines() if code_u == 0 else []
         sys_set = set(out_s.splitlines()) if code_s == 0 else set()

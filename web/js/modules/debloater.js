@@ -59,7 +59,8 @@ export function initDebloater() {
     tbody.innerHTML = "";
 
     if (filtered.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 30px;">No applications found matching criteria.</td></tr>';
+      const msg = allPackages.length === 0 ? "📱 Qurilma ulanmagan. Ilovalarni boshqarish uchun telefonni USB yoki Wi-Fi orqali ulang." : "No applications found matching criteria.";
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 30px;">${msg}</td></tr>`;
       return;
     }
 
