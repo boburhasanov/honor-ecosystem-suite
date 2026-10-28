@@ -1,5 +1,6 @@
 /**
  * Fast Beam (70+ MB/s) Wireless Synchronizer Controller
+ * Features drag-and-drop feedback, real-time audio-wave equalizer, and glassmorphic toasts.
  */
 
 export function initBeamer() {
@@ -10,8 +11,10 @@ export function initBeamer() {
     const file = await window.pywebview.api.select_file();
     if (file) {
       selectedPath = file;
-      document.getElementById("dropzoneText").textContent = "Selected: " + file.split("\\").pop();
+      const fileName = file.split("\\").pop();
+      document.getElementById("dropzoneText").textContent = "Selected: " + fileName;
       document.getElementById("dropzoneSub").textContent = file;
+      if (window.toast) window.toast.info(`Selected file: ${fileName}`);
     }
   };
 
@@ -20,14 +23,20 @@ export function initBeamer() {
     const folder = await window.pywebview.api.select_folder();
     if (folder) {
       selectedPath = folder;
-      document.getElementById("dropzoneText").textContent = "Selected Folder: " + folder.split("\\").pop();
+      const folderName = folder.split("\\").pop();
+      document.getElementById("dropzoneText").textContent = "Selected Folder: " + folderName;
       document.getElementById("dropzoneSub").textContent = folder;
+      if (window.toast) window.toast.info(`Selected folder: ${folderName}`);
     }
   };
 
   window.startBeaming = async function () {
     if (!selectedPath) {
-      alert("Please select a file or folder first!");
+      if (window.toast) {
+        window.toast.warning("Please select a file or folder first!");
+      } else {
+        alert("Please select a file or folder first!");
+      }
       return;
     }
 
@@ -41,6 +50,8 @@ export function initBeamer() {
     // Activate waveform animation
     setWaveformsActive(true);
 
+    if (window.toast) window.toast.info("Fast Beam initiated (70+ MB/s direct ADB)...");
+
     await window.pywebview.api.start_beam(selectedPath, remoteDir, autoApple);
   };
 
@@ -49,6 +60,7 @@ export function initBeamer() {
     document.getElementById("btnCancelBeam").disabled = true;
     document.getElementById("btnStartBeam").disabled = false;
     setWaveformsActive(false);
+    if (window.toast) window.toast.warning("Transfer cancelled by user.");
   };
 
   window.addEventListener("beam_progress", (e) => {
@@ -69,6 +81,14 @@ export function initBeamer() {
     document.getElementById("btnCancelBeam").disabled = true;
     document.getElementById("beamStatusMsg").textContent = d.message;
     setWaveformsActive(false);
+
+    if (window.toast) {
+      if (d.success) {
+        window.toast.success(d.message);
+      } else {
+        window.toast.error(d.message);
+      }
+    }
   });
 
   function setWaveformsActive(active) {

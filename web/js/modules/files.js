@@ -1,5 +1,6 @@
 /**
  * Remote Device File Explorer Controller
+ * Features breadcrumbs, directory tree browsing, upload/download with toasts.
  */
 
 export function initFiles() {
@@ -59,16 +60,29 @@ export function initFiles() {
   window.downloadFile = async function (remotePath) {
     const localDir = await window.pywebview.api.select_folder();
     if (localDir) {
-      await window.pywebview.api.pull_file(remotePath, localDir);
-      alert("Downloaded successfully to: " + localDir);
+      const fileName = remotePath.split("/").pop();
+      if (window.toast) window.toast.info(`Downloading ${fileName}...`);
+      const res = await window.pywebview.api.pull_file(remotePath, localDir);
+      if (res.success) {
+        if (window.toast) window.toast.success(`Downloaded to: ${localDir}`);
+      } else {
+        if (window.toast) window.toast.error(res.message);
+      }
     }
   };
 
   window.uploadFileDialog = async function () {
     const localFile = await window.pywebview.api.select_file();
     if (localFile) {
-      await window.pywebview.api.push_file(localFile, currentRemoteDir);
-      window.loadDirectory(currentRemoteDir);
+      const fileName = localFile.split("\\").pop();
+      if (window.toast) window.toast.info(`Uploading ${fileName}...`);
+      const res = await window.pywebview.api.push_file(localFile, currentRemoteDir);
+      if (res.success) {
+        if (window.toast) window.toast.success(`Uploaded ${fileName} successfully!`);
+        window.loadDirectory(currentRemoteDir);
+      } else {
+        if (window.toast) window.toast.error(res.message);
+      }
     }
   };
 }

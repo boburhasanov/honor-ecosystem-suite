@@ -3,6 +3,7 @@
  * MagicOS 9.0 Obsidian Design System (120 FPS Motion UI)
  */
 
+import "./modules/toast.js";
 import { initThemeInteractions } from "./modules/theme.js";
 import { initTelemetry } from "./modules/telemetry.js";
 import { initBeamer } from "./modules/beamer.js";

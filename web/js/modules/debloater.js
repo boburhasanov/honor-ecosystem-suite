@@ -1,5 +1,6 @@
 /**
  * Xiaomi Flash Tool Style Debloater Controller (Zero-Lag Virtualized Rendering)
+ * Supports safe uninstallation (--user 0), 1-click restore, and instant category filtering.
  */
 
 export function initDebloater() {
@@ -109,23 +110,27 @@ export function initDebloater() {
   window.uninstallSelected = async function () {
     const pkgs = getSelected();
     if (pkgs.length === 0) {
-      alert("Please check at least one package to uninstall.");
+      if (window.toast) window.toast.warning("Please check at least one package to uninstall.");
       return;
     }
     if (confirm(`Safely uninstall ${pkgs.length} packages for user 0? (Can be restored anytime).`)) {
-      await window.pywebview.api.uninstall_packages(pkgs);
-      loadPackageList();
+      if (window.toast) window.toast.info(`Safely uninstalling ${pkgs.length} packages...`);
+      const res = await window.pywebview.api.uninstall_packages(pkgs);
+      if (window.toast) window.toast.success(`Successfully uninstalled ${res.processed} of ${res.total} packages.`);
+      window.loadPackageList();
     }
   };
 
   window.restoreSelected = async function () {
     const pkgs = getSelected();
     if (pkgs.length === 0) {
-      alert("Please check at least one package to restore.");
+      if (window.toast) window.toast.warning("Please check at least one package to restore.");
       return;
     }
-    await window.pywebview.api.restore_packages(pkgs);
-    loadPackageList();
+    if (window.toast) window.toast.info(`Restoring ${pkgs.length} packages from Recycle Bin...`);
+    const res = await window.pywebview.api.restore_packages(pkgs);
+    if (window.toast) window.toast.success(`Successfully restored ${res.processed} of ${res.total} packages!`);
+    window.loadPackageList();
   };
 
   function setCount(id, val) {

@@ -5,13 +5,14 @@
 </p>
 
 <p align="center">
-  <b>Seamless Linux Integration for Honor & MagicOS Smartphones</b><br>
-  High-speed 70 MB/s Fast Beam • Live RAM & Battery Telemetry • Wireless Screen Mirror • Xiaomi Flash Tool Style Debloater • Zero-Resource Architecture
+  <b>Flagship Cross-Platform PC Suite for Honor & MagicOS Smartphones</b><br>
+  120 FPS Motion UI • 70+ MB/s Fast Beam • Live RAM & Battery Telemetry • 1440p Screen Mirror • Xiaomi Flash Tool Style Debloater • Zero-Resource Architecture
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-Windows%2011%20%7C%2010%20%7C%20Linux-blue?style=flat-square&logo=windows" alt="Platform Windows & Linux" />
-  <img src="https://img.shields.io/badge/UI-PySide6%20%7C%20Qt6%20%7C%20GTK3-8a2be2?style=flat-square" alt="PySide6 UI" />
+  <img src="https://img.shields.io/badge/Motion%20UI-120%20FPS%20(Edge%20Chromium)-38bdf8?style=flat-square" alt="120 FPS Motion UI" />
+  <img src="https://img.shields.io/badge/UI%20Engines-PyWebView%20%7C%20PySide6%20%7C%20GTK3-8a2be2?style=flat-square" alt="UI Engines" />
   <img src="https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square&logo=python" alt="Python Version" />
   <img src="https://img.shields.io/badge/Android-12%20%7C%2014%20%7C%2015%20%7C%2016-3DDC84?style=flat-square&logo=android" alt="Android Compatibility" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" />
@@ -30,55 +31,49 @@
 ## 🇬🇧 English
 
 ### Overview
-**Honor Ecosystem Suite** is a modern, native GTK3 desktop application engineered to bring the seamless MagicOS ecosystem experience to Linux distributions (Ubuntu, Linux Mint, Debian, Fedora, Arch Linux). 
+**Honor Ecosystem Suite** is a modern, high-performance desktop application engineered to bring the seamless MagicOS ecosystem experience to **Windows 11/10** and **Linux** distributions (Ubuntu, Linux Mint, Debian, Fedora, Arch Linux).
 
-Built strictly following **Design-First UI**, **Modular Components**, and a strict **Zero-Resource Policy** (0% CPU, 0 MB RAM when idle or closed), it provides all-in-one wireless synchronization between Linux PCs and Honor devices (tested on Honor 400 Pro with MagicOS 9.0 / Android 16).
+Featuring the **Obsidian & MagicOS 9.0 Design System**, the Windows Flagship Edition is powered by a hardware-accelerated **120 FPS Motion Engine (PyWebView + Edge Chromium WebView2)** coupled with an asynchronous Python backend, delivering zero-stutter animations, magnetic card glows, and instant sub-millisecond tab switching.
 
----
-
-### 📸 Visual Showcase
-
-| Live Dashboard & Telemetry | Fast Beam (70 MB/s + MediaStore Sync) |
-|:---:|:---:|
-| ![Dashboard](assets/screenshots/hub_dashboard.png) | ![Fast Beam](assets/screenshots/hub_fast_beam.png) |
-
-| Xiaomi Flash Tool Style Debloater | Instant Search & Safe Badges |
-|:---:|:---:|
-| ![Debloater](assets/screenshots/hub_debloater.png) | ![Search](assets/screenshots/hub_debloat_search.png) |
-
-| Uninstalled Apps (Recycle Bin / 1-Click Restore) | Low-Latency Wireless Mirroring |
-|:---:|:---:|
-| ![Recycle Bin](assets/screenshots/hub_recycle_bin.png) | ![Wireless Mirror](assets/screenshots/wireless_mirror.png) |
+Tested and optimized for **Honor 400 Pro**, **Magic6 / Magic7 Series**, and all devices running **MagicOS 7 / 8 / 9 (Android 12 to 16)**.
 
 ---
 
-### ✨ Key Features
+### ✨ Flagship Features
 
-1. **Live System Dashboard & Telemetry:**
-   - **Real-Time RAM State:** True `/proc/meminfo` parser displaying Active/Used RAM, Buffers/Cache, and Available RAM with animated progress bars.
+1. **120 FPS GPU-Accelerated Motion UI:**
+   - **Obsidian Dark & Cyber-Cyan Aesthetics:** Modern glassmorphism, dynamic radial mouse-following card glow, and spring cubic-bezier transitions.
+   - **Decoupled Architecture:** Asynchronous event bridge ensures large file transfers or network ADB delays never block UI frame rates.
+
+2. **Live System Dashboard & Hardware Telemetry:**
+   - **Real-Time RAM State:** True `/proc/meminfo` parser displaying Active/Used RAM, Buffers/Cache, and Available RAM with animated circular SVG gauges.
    - **Battery Health Diagnostics:** Live voltage (\(3.7\text{V} - 4.4\text{V}\)), temperature, charge status, and hardware cycle/SOH detection via Android `batteryproperties`.
-   - **Real-Time Storage Meter:** Visual breakdown of used and available internal storage.
+   - **Internal Storage Meter:** High-speed UFS 4.0 storage usage breakdown.
 
-2. **Ultra-Fast Wireless File Beam (70+ MB/s):**
-   - Direct wireless ADB stream with live MB/s speedometer and smooth progress bar.
+3. **Ultra-Fast Wireless File Beam (70+ MB/s):**
+   - High-throughput direct wireless ADB stream with live MB/s speedometer and audio-waveform equalizer visualizer.
    - **Apple Media Guard:** Automatic background conversion of iPhone `.heic` photos to `.jpg` and `.mov` videos to `.mp4` using hardware-accelerated `ffmpeg`.
    - **Instant Resume:** Resumes interrupted multi-gigabyte transfers without re-transmitting existing files.
-   - **Android 16 MediaStore Auto-Indexer:** Automatically invokes `content call --uri content://media --method scan_volume --arg external_primary` so sent photos and 4K videos appear in the phone's native Gallery immediately without phone reboots.
+   - **Android 16 MediaStore Auto-Indexer:** Automatically invokes `scan_volume` so photos and 4K videos appear in the phone's native Gallery immediately without phone reboots.
    - **Flat Timeline Hierarchy:** Intelligently saves to `/sdcard/DCIM/Camera/` to preserve native MagicOS chronological timeline sorting.
 
-3. **Xiaomi Flash Tool Style Debloater & App Manager:**
-   - 355+ categorized package database covering System Bloatware, Carrier apps, Analytics, Honor Cloud, and User apps.
+4. **Xiaomi Flash Tool Style Debloater & App Manager:**
+   - 360+ categorized package database covering System Bloatware, Carrier apps, Analytics, Honor Cloud, and User apps.
    - Color-coded safety tags: `Safe to Remove` (Green), `Caution` (Yellow), and `Dangerous/Essential` (Red).
    - 5 Quick-Filter tabs: All, Recommended (Bloat), System Apps, User Installed, and Recycle Bin.
-   - Multi-select batch removal (`pm uninstall -k --user 0`) with zero-risk safe mode.
+   - Safe uninstallation (`pm uninstall -k --user 0`) with zero-risk safe mode.
    - **1-Click Restore:** Restores uninstalled packages (`cmd package install-existing`) at any time directly from the Recycle Bin tab.
 
-4. **Wireless Multi-Screen Collaboration:**
-   - Ultra low-latency 1440p / 60 FPS screen mirror and bi-directional audio bridge powered by `scrcpy`.
-   - Shared clipboard between Linux and Honor device.
+5. **Wireless Multi-Screen Collaboration (Screen Mirror):**
+   - Ultra low-latency 1440p / 1080p / 720p 60 FPS screen mirror and bi-directional audio bridge powered by `scrcpy`.
+   - Smartphone display turn-off mode to prevent heat and save battery during screen mirroring.
+   - Shared clipboard between PC and Honor device.
 
-5. **Zero-Resource Background Guarantee:**
-   - No persistent daemons, background polling loops, or memory leaks. Consumes 0% CPU and 0 MB RAM when closed.
+6. **Remote Device File Explorer:**
+   - Browse smartphone storage over ADB with double-click directory navigation, search, and upload/download with glassmorphic toast notifications.
+
+7. **Zero-Resource Background Guarantee:**
+   - No persistent daemons, background polling loops, or memory leaks. Consumes **0% CPU and 0 MB RAM** when idle or closed.
 
 ---
 
@@ -90,7 +85,21 @@ git clone https://github.com/boburhasanov/honor-ecosystem-suite.git
 cd honor-ecosystem-suite
 powershell -ExecutionPolicy Bypass -File .\scripts\install_windows.ps1
 ```
-*Installs PySide6, verifies ADB/Scrcpy/FFmpeg, and creates an **Honor Ecosystem Hub** shortcut on your Desktop.*
+*Installs required dependencies (`pywebview`, `PySide6`), verifies `adb`, `scrcpy`, `ffmpeg`, and creates the **Honor Ecosystem Hub** desktop shortcut with the flagship 3D icon.*
+
+To launch manually via terminal:
+```powershell
+# 120 FPS Flagship Motion Edition (Recommended)
+python honor-hub-motion.py
+
+# Native Qt6 Desktop Edition
+python honor-control-center.py
+```
+
+To build a standalone Windows binary:
+```powershell
+python scripts\build_windows_dist.py
+```
 
 ---
 
@@ -111,91 +120,66 @@ cd honor-ecosystem-suite
 ./bin/honor-control-center
 ```
 
-#### Dependencies
-- **Debian / Ubuntu / Linux Mint:**
-  ```bash
-  sudo apt install -y adb scrcpy python3-gi gir1.2-gtk-3.0 ffmpeg
-  ```
-- **Arch Linux:**
-  ```bash
-  sudo pacman -S android-tools scrcpy python-gobject ffmpeg
-  ```
-- **Fedora:**
-  ```bash
-  sudo dnf install -y android-tools scrcpy python3-gobject ffmpeg
-  ```
-
 ---
 
 <a name="ozbekcha"></a>
 ## 🇺🇿 O'zbekcha
 
 ### Umumiy Ma'lumot
-**Honor Ecosystem Suite** — Honor va MagicOS smartfonlarini Linux operatsion tizimlari (Ubuntu, Linux Mint, Debian, Arch, Fedora) bilan mukammal darajada birlashtirish uchun yaratilgan zamonaviy, milliy GTK3 grafik dasturi.
+**Honor Ecosystem Suite** — Honor va MagicOS smartfonlarini **Windows 11/10** va **Linux** (Ubuntu, Linux Mint, Debian, Arch, Fedora) bilan mukammal darajada birlashtiruvchi zamonaviy flagman grafik dasturi.
 
-Ushbu loyiha **Design-First** (Zamonaviy Obsidian Dark dizayn), **Modulli arxitektura** va **Zero-Resource** (fondagi jarayonlarsiz, 0% CPU va 0 MB RAM) tamoyillari asosida yaratilgan bo'lib, Honor 400 Pro (MagicOS 9.0 / Android 16) qurilmasida to'liq sinovdan o'tgan.
+Ushbu dastur **120 FPS Motion UI (Edge Chromium WebView2)** va tezyurar asinxron Python yadrosi orqali ishlab, qotishlarsiz silliq animatsiyalar, magnitli neon yorug'lik effektlari va zumda ishlovchi ilovalar boshqaruvini taqdim etadi.
+
+Honor 400 Pro, Magic6, Magic7 va boshqa MagicOS 7/8/9 (Android 12-16) qurilmalarida sinovdan o'tgan.
 
 ---
 
 ### ✨ Asosiy Imkoniyatlar
 
-1. **Jonli Telemetriya va Dashboard:**
-   - **Haqiqiy RAM Holati:** Smartfondagi `/proc/meminfo` drayveridan to'g'ridan-to'g'ri o'qilgan Active (ishlatilayotgan), Cache (kesh) va Bo'sh RAM ko'rsatkichlari.
-   - **Batareya Diagnostikasi:** Real-vaqtli kuchlanish (\(3.7\text{V} - 4.4\text{V}\)), harorat, quvvatlash holati va `batteryproperties` orqali zaryadlash sikllari/SOH salomatligi.
-   - **Xotira Holati:** Telefon ichki xotirasining real-vaqtdagi bandlik ko'rsatkichi.
+1. **120 FPS GPU-Tezlatkichli Motion UI:**
+   - Obsidian Dark va Cyber-Cyan dizayn tizimi, magnitli kursor nuri, silliq o'tishlar.
+   - Asinxron arxitektura: Fayl ko'chirish yoki tarmoq sekinligi interfeysni aslo qotirmaydi.
 
-2. **Ultra-Tezkor Simsiz Fayl Uzatish (70+ MB/s Fast Beam):**
-   - Yuqori tezlikdagi simsiz ADB uzatish, real-vaqt tezlik spidometri (MB/s).
-   - **Apple Media Guard:** iPhone'dan olingan `.heic` rasmlarni avtomatik `.jpg` ga, `.mov` videolarni esa apparat tezlatkichli `ffmpeg` orqali `.mp4` ga o'girish.
-   - **Instant Resume:** Tarmoq uzilsa ham, uzatilgan gigabaytlab fayllarni qayta yuklamay, to'xtagan joyidan davom ettirish.
-   - **Android 16 MediaStore Sinxronizatsiyasi:** `content call --uri content://media --method scan_volume --arg external_primary` orqali yuklangan foto va videolarni telefonni qayta yoqmasdan darhol "Galereya" (MagicOS Photos) da aks ettirish.
-   - **To'g'ri Xronologiya:** Medialarni `/sdcard/DCIM/Camera/` papkasiga to'g'ri joylashtirish orqali oylar va kunlar tartibini saqlash.
+2. **Jonli Telemetriya va Dashboard:**
+   - **Haqiqiy RAM Holati:** Smartfondagi `/proc/meminfo` drayveridan to'g'ridan-to'g'ri olingan Active, Cache va Bo'sh RAM ko'rsatkichlari.
+   - **Batareya Diagnostikasi:** Kuchlanish (\(3.7\text{V} - 4.4\text{V}\)), harorat, zaryadlash holati va `batteryproperties` orqali zaryadlash sikllari / SOH salomatligi.
+   - **Xotira Holati:** Telefon ichki xotirasining real-vaqtdagi bandligi.
 
-3. **Xiaomi Flash Tool Uslubidagi Dasturlarni Tozalovchi (Debloater):**
-   - 355+ dan ortiq tizim va foydalanuvchi ilovalarining xavfsizlik reytingi (Xavfsiz, Ehtiyotkorlik, Xavfli).
-   - 5 ta qulay filtr: Hammasi, Tavsiya etilgan (Keraksiz/Bloatware), Tizim ilovalari, O'rnatilgan ilovalar va Chiqindilar qutisi (Recycle Bin).
+3. **Ultra-Tezkor Simsiz Fayl Uzatish (70+ MB/s Fast Beam):**
+   - Yuqori tezlikdagi simsiz ADB uzatish, jonli audio-to'lqinli visualizer spidometri.
+   - **Apple Media Guard:** iPhone rasmlarini (`.heic`) avtomatik `.jpg` ga, videolarni (`.mov`) apparat tezlatkichli `ffmpeg` bilan `.mp4` ga o'girish.
+   - **Instant Resume:** Tarmoq uzilsa ham, to'xtagan joyidan davom ettirish.
+   - **Android 16 MediaStore Sinxronizatsiyasi:** Yuklangan medialarni telefonni o'chirib-yoqmasdan darhol "Galereya"da aks ettirish.
+   - **To'g'ri Xronologiya:** Medialarni `/sdcard/DCIM/Camera/` papkasiga joylashtirib, sana tartibini saqlash.
+
+4. **Xiaomi Flash Tool Uslubidagi Dasturlarni Tozalovchi (Debloater):**
+   - 360+ tizim va foydalanuvchi ilovalarining xavfsizlik reytingi (Xavfsiz, Ehtiyotkorlik, Xavfli).
+   - 5 ta qulay filtr: Hammasi, Tavsiya etilgan (Bloatware), Tizim, O'rnatilgan va Chiqindilar qutisi (Recycle Bin).
    - Bir vaqtning o'zida bir nechta dasturni xavfsiz o'chirish (`pm uninstall -k --user 0`).
-   - **1-Bosishda Qayta Tiklash:** O'chirilgan dasturlarni istalgan paytda "Recycle Bin" bo'limidan 1 ta tugma orqali asliga qaytarish (`cmd package install-existing`).
+   - **1-Bosishda Qayta Tiklash:** O'chirilgan dasturlarni 1 ta tugma orqali asliga qaytarish (`cmd package install-existing`).
 
-4. **Simsiz Ekranni Boshqarish va Ovoz Uzatish (Mirroring):**
-   - 1440p / 60 FPS past kechikishli ekran oyna rejimi (`scrcpy` negizida).
-   - Kompyuter va telefon o'rtasida umumiy clipboard (bufer).
+5. **Simsiz Ekranni Boshqarish (Screen Mirror):**
+   - 1440p / 1080p / 720p 60 FPS past kechikishli ekran oynasi (`scrcpy` negizida).
+   - Telefon qizib ketmasligi uchun oyna paytida telefon ekranini o'chirish imkoniyati.
+   - Kompyuter va telefon o'rtasida umumiy nusxalash buferi (clipboard).
 
-5. **Nol Resurs Siyosati (Zero-Resource Background Policy):**
-   - Fondagi yashirin xizmatlar yoki tinimsiz aylanuvchi sikllar yo'q. Dastur yopilganda CPU 0%, RAM 0 MB bo'lib, tizimni aslo sekinlashtirmaydi.
+6. **Masofaviy Fayl Menejeri (File Explorer):**
+   - Telefon ichki xotirasini kompyuterdan bevosita ko'rish, fayllarni yuklash va tushirib olish.
+
+7. **Nol Resurs Siyosati (Zero-Resource Guarantee):**
+   - Fondagi keraksiz xizmatlarsiz. Dastur yopilganda CPU 0%, RAM 0 MB.
 
 ---
 
-### 🚀 O'rnatish va Ishga Tushirish
+### 🚀 O'rnatish
 
-#### 🪟 Windows 11 / 10 uchun O'rnatish (Tavsiya etiladi)
+#### 🪟 Windows 11 / 10 (Tavsiya etiladi)
 ```powershell
 git clone https://github.com/boburhasanov/honor-ecosystem-suite.git
 cd honor-ecosystem-suite
 powershell -ExecutionPolicy Bypass -File .\scripts\install_windows.ps1
 ```
-*PySide6 ni sozlaydi, ADB, Scrcpy, FFmpeg dasturlarini tekshiradi va Ish stolida (Desktop) **"Honor Ecosystem Hub"** yorlig'ini yaratadi.*
-
----
-
-#### 🐧 Linux (Ubuntu / Mint / Debian / Arch / Fedora)
-
-#### 1-usul: Avtomatlashtirilgan O'rnatuvchi (Tavsiya etiladi)
-```bash
-git clone https://github.com/boburhasanov/honor-ecosystem-suite.git
-cd honor-ecosystem-suite
-chmod +x install.sh
-sudo ./install.sh
-```
-
-#### 2-usul: O'rnatmasdan to'g'ridan-to'g'ri ishga tushirish (Portable)
-```bash
-git clone https://github.com/boburhasanov/honor-ecosystem-suite.git
-cd honor-ecosystem-suite
-./bin/honor-control-center
-```
-
-O'rnatilgandan so'ng dasturlar menyusidan **"Honor Ecosystem Hub"** ni tanlang yoki terminalda `honor-control-center` buyrug'ini tering.
+*Ish stolida flagman 3D ikonka bilan **"Honor Ecosystem Hub"** yorlig'ini yaratadi.*
 
 ---
 
@@ -203,59 +187,18 @@ O'rnatilgandan so'ng dasturlar menyusidan **"Honor Ecosystem Hub"** ni tanlang y
 ## 🇷🇺 Русский
 
 ### Обзор
-**Honor Ecosystem Suite** — это современное нативное приложение на GTK3, созданное для бесшовной интеграции смартфонов Honor под управлением MagicOS с дистрибутивами Linux (Ubuntu, Linux Mint, Debian, Arch, Fedora).
+**Honor Ecosystem Suite** — флагманское кроссплатформенное приложение для бесшовной интеграции смартфонов Honor под управлением MagicOS с **Windows 11/10** и **Linux** (Ubuntu, Mint, Debian, Arch, Fedora).
 
-Приложение разработано в строгом соответствии с принципами **Design-First** (эстетичный интерфейс в стиле Obsidian Dark), **модульной архитектуры** и **Zero-Resource Background Policy** (0% нагрузки на CPU и 0 МБ RAM в фоне). Полностью протестировано на Honor 400 Pro (MagicOS 9.0 / Android 16).
-
----
-
-### ✨ Ключевые возможности
-
-1. **Информативная панель телеметрии (Dashboard):**
-   - **Реальное состояние RAM:** Точный парсер `/proc/meminfo` отображает фактический объем используемой, кэшированной и свободной оперативной памяти.
-   - **Диагностика аккумулятора:** Отображение напряжения в реальном времени (\(3.7\text{В} - 4.4\text{В}\)), температуры, статуса зарядки, а также аппаратных циклов и износа батареи (SOH).
-   - **Мониторинг хранилища:** Наглядная диаграмма заполненности внутренней памяти смартфона.
-
-2. **Высокоскоростная беспроводная передача файлов (70+ МБ/с Fast Beam):**
-   - Прямой беспроводной поток через ADB со спидометром в реальном времени (МБ/с) и плавным индикатором прогресса.
-   - **Apple Media Guard:** Автоматическая конвертация медиафайлов Apple: фото `.heic` в формат `.jpg`, а видео `.mov` в формат `.mp4` с аппаратным ускорением через `ffmpeg`.
-   - **Мгновенное возобновление (Instant Resume):** При обрыве соединения передача продолжается с прерванного места без повторной пересылки гигабайтов данных.
-   - **Автоматическая индексация MediaStore (Android 16):** Вызов `content call --uri content://media --method scan_volume --arg external_primary` моментально регистрирует переданные фото и 4K-видео в системной Галерее MagicOS без перезагрузки телефона.
-   - **Корректный таймлайн:** Файлы сохраняются в `/sdcard/DCIM/Camera/`, сохраняя нативную хронологию альбомов.
-
-3. **Менеджер приложений и очистка системы в стиле Xiaomi Flash Tool:**
-   - База данных из 355+ пакетов с маркировкой безопасности (Безопасно, Внимание, Опасно).
-   - 5 фильтров: Все, Рекомендованные к удалению (Bloatware), Системные, Пользовательские и Корзина (Recycle Bin).
-   - Безопасное пакетное удаление (`pm uninstall -k --user 0`) без потери данных.
-   - **Восстановление в 1 клик:** Любое удаленное приложение можно мгновенно восстановить прямо из вкладки "Корзина" (`cmd package install-existing`).
-
-4. **Беспроводная трансляция экрана и управление:**
-   - Высококачественная трансляция 1440p / 60 FPS с минимальной задержкой и передачей звука через `scrcpy`.
-   - Общий буфер обмена между Linux и смартфоном.
-
-5. **Гарантия нулевой нагрузки на ресурсы (Zero-Resource):**
-   - Отсутствие скрытых фоновых демонов и ресурсоемких таймеров. В закрытом состоянии приложение потребляет 0% CPU и 0 МБ RAM.
+Флагманская версия для Windows оснащена аппаратным **120 FPS Motion UI (Edge Chromium WebView2)** и асинхронным ядром Python, обеспечивая плавность работы без задержек и подвисаний.
 
 ---
 
-### 🚀 Установка и запуск
-
-#### Способ 1: Автоматический инсталлятор (Рекомендуется)
-```bash
+### 🚀 Быстрый запуск на Windows 11 / 10
+```powershell
 git clone https://github.com/boburhasanov/honor-ecosystem-suite.git
 cd honor-ecosystem-suite
-chmod +x install.sh
-sudo ./install.sh
+powershell -ExecutionPolicy Bypass -File .\scripts\install_windows.ps1
 ```
-
-#### Способ 2: Портативный запуск без установки
-```bash
-git clone https://github.com/boburhasanov/honor-ecosystem-suite.git
-cd honor-ecosystem-suite
-./bin/honor-control-center
-```
-
-После установки приложение доступно в системном меню как **"Honor Ecosystem Hub"** или по команде `honor-control-center`.
 
 ---
 

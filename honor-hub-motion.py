@@ -13,8 +13,12 @@ from pathlib import Path
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-# Add project root to sys.path
-BASE_DIR = Path(__file__).resolve().parent
+# Support both PyInstaller frozen bundle and standard directory execution
+if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+    BASE_DIR = Path(sys._MEIPASS)
+else:
+    BASE_DIR = Path(__file__).resolve().parent
+
 sys.path.insert(0, str(BASE_DIR))
 
 import webview
@@ -29,8 +33,8 @@ def main():
         title="Honor Ecosystem Hub — MagicOS PC Suite",
         url=f"file:///{html_path.as_posix()}",
         js_api=api,
-        width=1200,
-        height=800,
+        width=1220,
+        height=820,
         min_size=(960, 640),
         background_color="#070a13"
     )
