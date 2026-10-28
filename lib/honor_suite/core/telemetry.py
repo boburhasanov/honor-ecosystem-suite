@@ -1,7 +1,7 @@
 """
 Live Hardware Telemetry Service for Honor Ecosystem Suite.
 Gathers high-precision battery diagnostics, /proc/meminfo RAM state, and storage metrics.
-Optimized with static property caching for reduced ADB overhead.
+100% dynamic, multi-model compatible without hardcoded device assumptions.
 """
 
 import re
@@ -22,13 +22,14 @@ class TelemetryService:
         """
         overview: Dict[str, Any] = {
             "connected": False,
-            "target": self.adb.get_target(),
-            "model": "Honor Device",
+            "connection_type": "offline",
+            "target": "Searching / Offline",
+            "model": "No Device Connected",
             "android": "Android",
             "battery_level": 0,
-            "battery_status": "Unknown",
+            "battery_status": "--",
             "battery_cycles": 0,
-            "battery_soh": 100,
+            "battery_soh": 0,
             "battery_voltage_v": 0.0,
             "battery_temp_c": 0.0,
             "storage_total_gb": 0.0,
@@ -48,14 +49,18 @@ class TelemetryService:
             return overview
 
         overview["connected"] = True
+        overview["connection_type"] = self.adb.get_connection_type()
+        overview["target"] = self.adb.get_target()
 
-        # 1. Device Model & OS (Cached to prevent repetitive ADB overhead)
+        # 1. Device Model & OS (Dynamically detected from connected phone)
         if not self._cached_model:
             _, m_out, _ = self.adb.run_cmd(["shell", "getprop", "ro.product.model"], timeout=2)
             if m_out.strip():
                 self._cached_model = m_out.strip()
         if self._cached_model:
             overview["model"] = self._cached_model
+        else:
+            overview["model"] = "Android Device"
 
         if not self._cached_android:
             _, a_out, _ = self.adb.run_cmd(["shell", "getprop", "ro.build.version.release"], timeout=2)

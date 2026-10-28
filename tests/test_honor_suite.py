@@ -139,13 +139,23 @@ class TestHonorBridge(unittest.TestCase):
         self.assertIsNotNone(self.bridge.browser)
 
     def test_telemetry_disconnected_contract(self):
-        # When no device is attached, it should return a valid contract without throwing
+        # When no device is attached, it should return a valid neutral contract without throwing
         data = self.bridge.get_telemetry()
         self.assertIsInstance(data, dict)
-        self.assertIn("connected", data)
-        self.assertIn("battery_level", data)
-        self.assertIn("ram_percent", data)
-        self.assertIn("storage_percent", data)
+        self.assertFalse(data["connected"])
+        self.assertEqual(data["model"], "No Device Connected")
+        self.assertEqual(data["connection_type"], "offline")
+        self.assertEqual(data["ram_total_gb"], 0.0)
+        self.assertEqual(data["storage_total_gb"], 0.0)
+        self.assertEqual(data["battery_level"], 0)
+
+    def test_enable_wireless_mode_contract(self):
+        # When no device is attached, it safely reports failure with informative message
+        res = self.bridge.enable_wireless_mode()
+        self.assertIsInstance(res, dict)
+        self.assertIn("success", res)
+        self.assertIn("message", res)
+        self.assertFalse(res["success"])
 
     def test_package_manager_cache(self):
         pm = self.bridge.pm

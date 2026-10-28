@@ -60,9 +60,12 @@
     <header class="topbar">
       <div class="page-title">
         <h2 id="topTitle">Live Dashboard &amp; Telemetry</h2>
-        <p id="topSubtitle">Real-time Android 16 hardware diagnostics &amp; telemetry</p>
+        <p id="topSubtitle">Real-time hardware diagnostics &amp; ecosystem telemetry</p>
       </div>
       <div class="top-actions">
+        <button id="btnEnableWireless" class="btn btn-primary" style="display: none; padding: 7px 14px; font-size: 12px;" onclick="enableWirelessHandshake()">
+          ⚡ Switch to Wireless Mode
+        </button>
         <button class="btn btn-secondary" onclick="refreshCurrentTab()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0118.8-4.3M22 12.5a10 10 0 01-18.8 4.2"></path></svg>
           <span>Refresh</span>
@@ -75,12 +78,12 @@
       <!-- Device Banner Card -->
       <div class="card" style="margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <h3 id="devModelName" style="font-size: 18px; font-weight: 800; color: #f8fafc;">📱 Honor Device</h3>
-          <p id="devOsVersion" style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">MagicOS 9.0 • Android 16</p>
+          <h3 id="devModelName" style="font-size: 18px; font-weight: 800; color: #f8fafc;">📱 No Device Connected</h3>
+          <p id="devOsVersion" style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">Connect phone via USB (to enable Wireless) or turn on Hotspot</p>
         </div>
         <div style="text-align: right;">
-          <span class="badge badge-safe" id="connectionBadge">Online • Wi-Fi Hotspot</span>
-          <p id="targetIpText" style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">Target: 192.168.43.1:5555</p>
+          <span class="badge badge-danger" id="connectionBadge">Offline • Disconnected</span>
+          <p id="targetIpText" style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">Target: Searching...</p>
         </div>
       </div>
 
@@ -90,12 +93,12 @@
         <div class="card metric-card">
           <div class="metric-header">
             <span class="metric-title">Battery Diagnostics</span>
-            <span id="batStatusPill" style="font-size: 11px; font-weight: 700; color: #38bdf8;">Discharging</span>
+            <span id="batStatusPill" style="font-size: 11px; font-weight: 700; color: var(--text-dim);">Offline</span>
           </div>
           <div class="metric-body">
             <div>
               <div class="metric-large" id="batLevelVal">--%</div>
-              <div class="metric-footer" id="batDetailsVal">3.92V • 31.4°C</div>
+              <div class="metric-footer" id="batDetailsVal">-- V • -- °C</div>
             </div>
             <div class="gauge-circle">
               <svg viewBox="0 0 36 36">
@@ -105,19 +108,19 @@
               <div class="gauge-val" id="batGaugeText">0%</div>
             </div>
           </div>
-          <div class="metric-footer" id="batSohVal">Health: 100% SOH • 0 Charge Cycles</div>
+          <div class="metric-footer" id="batSohVal">Health: -- SOH • -- Cycles</div>
         </div>
 
         <!-- RAM State Card (/proc/meminfo) -->
         <div class="card metric-card">
           <div class="metric-header">
             <span class="metric-title">Live RAM (/proc/meminfo)</span>
-            <span style="font-size: 11px; font-weight: 700; color: #10b981;">Active Stream</span>
+            <span style="font-size: 11px; font-weight: 700; color: #10b981;">Dynamic Buffer</span>
           </div>
           <div class="metric-body">
             <div>
               <div class="metric-large" id="ramUsedVal">-- GB</div>
-              <div class="metric-footer" id="ramTotalVal">Total: 12.0 GB Physical</div>
+              <div class="metric-footer" id="ramTotalVal">Total: -- GB Physical RAM</div>
             </div>
             <div class="gauge-circle">
               <svg viewBox="0 0 36 36">
@@ -127,19 +130,19 @@
               <div class="gauge-val" id="ramGaugeText">0%</div>
             </div>
           </div>
-          <div class="metric-footer" id="ramFreeVal">Available: -- GB (Buffers &amp; Cache)</div>
+          <div class="metric-footer" id="ramFreeVal">Available: -- GB</div>
         </div>
 
         <!-- Internal Storage Card -->
         <div class="card metric-card">
           <div class="metric-header">
             <span class="metric-title">Internal Storage (/storage/emulated)</span>
-            <span style="font-size: 11px; font-weight: 700; color: #f59e0b;">UFS 4.0</span>
+            <span style="font-size: 11px; font-weight: 700; color: #f59e0b;">UFS Storage</span>
           </div>
           <div class="metric-body">
             <div>
               <div class="metric-large" id="storageUsedVal">-- GB</div>
-              <div class="metric-footer" id="storageTotalVal">Total: 512 GB</div>
+              <div class="metric-footer" id="storageTotalVal">Total: -- GB Internal Storage</div>
             </div>
             <div class="gauge-circle">
               <svg viewBox="0 0 36 36">
@@ -149,7 +152,7 @@
               <div class="gauge-val" id="storageGaugeText">0%</div>
             </div>
           </div>
-          <div class="metric-footer" id="storageFreeVal">Free: -- GB for 4K Media &amp; Apps</div>
+          <div class="metric-footer" id="storageFreeVal">Free: -- GB for Media</div>
         </div>
 
         <!-- Wireless Telemetry Card -->

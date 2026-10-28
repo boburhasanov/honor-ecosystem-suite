@@ -1,11 +1,13 @@
 """
 Robust Cross-Platform ADB Service for Honor Ecosystem Suite.
 Manages ADB daemon execution, dynamic target discovery, and non-blocking command routing.
+Supports 1-Click USB-to-Wireless Magic Handshake and auto-hotspot reconnection.
 """
 
 import subprocess
 import time
-from typing import List, Tuple, Optional
+import re
+from typing import List, Tuple, Optional, Dict
 from lib.honor_suite.utils.platform_helper import (
     find_executable,
     get_creation_flags,
@@ -59,18 +61,91 @@ class AdbService:
         if gw:
             target = f"{gw}:5555"
             try:
-                subprocess.run(
+                conn_res = subprocess.run(
                     [self.adb_bin, "connect", target],
                     capture_output=True,
+                    text=True,
                     timeout=2,
                     creationflags=get_creation_flags()
                 )
-                self._target = target
-                return target
+                if "connected" in conn_res.stdout.lower():
+                    self._target = target
+                    return target
             except Exception:
                 pass
 
         return self._target or "127.0.0.1:5555"
+
+    def get_connection_type(self) -> str:
+        """Returns 'wireless', 'usb', or 'offline'."""
+        if not self.is_connected():
+            return "offline"
+        target = self.get_target()
+        return "wireless" if ":" in target else "usb"
+
+    def get_device_ip(self) -> Optional[str]:
+        """Discovers the IP address of the active phone across wlan0, ap0, or hotspot."""
+        if not self.is_connected():
+            return None
+
+        # 1. Try ip addr show wlan0 or ap0
+        for iface in ["wlan0", "ap0", "rndis0", "wlan1"]:
+            code, out, _ = self.run_cmd(["shell", "ip", "-f", "inet", "addr", "show", iface], timeout=2)
+            if code == 0 and "inet " in out:
+                m = re.search(r"inet\s+(\d+\.\d+\.\d+\.\d+)", out)
+                if m:
+                    ip = m.group(1)
+                    if not ip.startswith("127."):
+                        return ip
+
+        # 2. Try getprop dhcp.wlan0.ipaddress
+        code, out, _ = self.run_cmd(["shell", "getprop", "dhcp.wlan0.ipaddress"], timeout=2)
+        if code == 0 and out.strip():
+            return out.strip()
+
+        # 3. Check host default gateway (Hotspot gateway)
+        gw = get_default_gateway()
+        if gw and gw != "127.0.0.1":
+            return gw
+
+        return None
+
+    def enable_wireless_mode(self) -> Tuple[bool, str, str]:
+        """
+        1-Click USB-to-Wireless Magic Handshake:
+        1. Ensures phone is connected via USB.
+        2. Discovers phone IP (or hotspot gateway).
+        3. Configures adb tcpip 5555.
+        4. Connects over TCP and updates target.
+        Returns (success, message, target_ip).
+        """
+        if not self.is_connected():
+            return False, "Qurilma topilmadi. Avval telefonni USB kabel orqali ulang.", ""
+
+        # Find phone's wireless IP
+        phone_ip = self.get_device_ip()
+        if not phone_ip:
+            phone_ip = get_default_gateway() or "192.168.43.1"
+
+        # Switch ADB daemon on device to listen on port 5555
+        self.run_cmd(["tcpip", "5555"], timeout=5)
+        time.sleep(1.2)  # Give adbd time to restart on port 5555
+
+        # Connect over wireless
+        target_endpoint = f"{phone_ip}:5555"
+        conn_res = subprocess.run(
+            [self.adb_bin, "connect", target_endpoint],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            creationflags=get_creation_flags()
+        )
+
+        if "connected" in conn_res.stdout.lower():
+            self._target = target_endpoint
+            return True, f"Simsiz rejim faollashtirildi ({target_endpoint})! Endi USB kabelni bemalol uzishingiz mumkin.", target_endpoint
+        else:
+            return False, f"Port 5555 ochildi, lekin ulanib bo'lmadi ({phone_ip}). Telefon va noutbuk bir xil Wi-Fi/Hotspot tarmog'idaligini tekshiring.", target_endpoint
 
     def run_cmd(self, args: List[str], timeout: int = 10) -> Tuple[int, str, str]:
         """

@@ -17,7 +17,7 @@ export function initThemeInteractions() {
   });
 
   const titles = [
-    ["Live Dashboard & Telemetry", "Real-time Android 16 hardware diagnostics & telemetry"],
+    ["Live Dashboard & Telemetry", "Real-time hardware diagnostics & ecosystem telemetry"],
     ["Fast Beam (70+ MB/s)", "Direct high-speed media synchronization with Apple Media Guard"],
     ["App Debloater", "Xiaomi Flash Tool style safe debloater with 1-Click Restore"],
     ["Screen Mirroring", "Ultra low-latency 1440p / 60 FPS wireless collaboration (Scrcpy)"],

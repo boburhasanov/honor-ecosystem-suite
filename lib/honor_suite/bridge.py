@@ -42,10 +42,15 @@ class HonorBridgeApi:
         except Exception:
             pass
 
-    # 1. Telemetry API
+    # 1. Telemetry & Connection API
     def get_telemetry(self) -> Dict[str, Any]:
         """Polls full hardware telemetry (battery, RAM meminfo, storage, ping)."""
         return self.telemetry.get_overview()
+
+    def enable_wireless_mode(self) -> Dict[str, Any]:
+        """Triggers 1-Click USB-to-Wireless Magic Handshake (tcpip 5555 + auto-connect)."""
+        ok, msg, target = self.adb.enable_wireless_mode()
+        return {"success": ok, "message": msg, "target": target}
 
     # 2. Fast Beam API
     def start_beam(self, local_path: str, remote_dir: str = "/storage/emulated/0/DCIM/Camera", auto_apple: bool = True) -> Dict[str, Any]:
