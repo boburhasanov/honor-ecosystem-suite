@@ -126,5 +126,38 @@ class TestQtUiHeadless(unittest.TestCase):
         self.assertEqual(window.stack.count(), 5)
         window.close()
 
+class TestHonorBridge(unittest.TestCase):
+    def setUp(self):
+        from lib.honor_suite.bridge import HonorBridgeApi
+        self.bridge = HonorBridgeApi()
+
+    def test_bridge_instantiation(self):
+        self.assertIsNotNone(self.bridge.telemetry)
+        self.assertIsNotNone(self.bridge.beamer)
+        self.assertIsNotNone(self.bridge.pm)
+        self.assertIsNotNone(self.bridge.mirror)
+        self.assertIsNotNone(self.bridge.browser)
+
+    def test_telemetry_disconnected_contract(self):
+        # When no device is attached, it should return a valid contract without throwing
+        data = self.bridge.get_telemetry()
+        self.assertIsInstance(data, dict)
+        self.assertIn("connected", data)
+        self.assertIn("battery_level", data)
+        self.assertIn("ram_percent", data)
+        self.assertIn("storage_percent", data)
+
+    def test_package_manager_cache(self):
+        pm = self.bridge.pm
+        pm._cached_packages = [{"pkg": "mock.pkg", "name": "Mock App", "status": "Active"}]
+        import time
+        pm._cache_time = time.time()
+        res = pm.get_all_packages()
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0]["pkg"], "mock.pkg")
+
+        pm.invalidate_cache()
+        self.assertIsNone(pm._cached_packages)
+
 if __name__ == "__main__":
     unittest.main()

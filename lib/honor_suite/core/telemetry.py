@@ -1,16 +1,19 @@
 """
 Live Hardware Telemetry Service for Honor Ecosystem Suite.
 Gathers high-precision battery diagnostics, /proc/meminfo RAM state, and storage metrics.
+Optimized with static property caching for reduced ADB overhead.
 """
 
 import re
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from lib.honor_suite.core.adb_service import AdbService
 from lib.honor_suite.utils.platform_helper import ping_host, get_default_gateway
 
 class TelemetryService:
     def __init__(self, adb: AdbService):
         self.adb = adb
+        self._cached_model: Optional[str] = None
+        self._cached_android: Optional[str] = None
 
     def get_overview(self) -> Dict[str, Any]:
         """
@@ -40,18 +43,26 @@ class TelemetryService:
         }
 
         if not self.adb.is_connected():
+            self._cached_model = None
+            self._cached_android = None
             return overview
 
         overview["connected"] = True
 
-        # 1. Device Model & OS
-        _, m_out, _ = self.adb.run_cmd(["shell", "getprop", "ro.product.model"], timeout=2)
-        if m_out.strip():
-            overview["model"] = m_out.strip()
+        # 1. Device Model & OS (Cached to prevent repetitive ADB overhead)
+        if not self._cached_model:
+            _, m_out, _ = self.adb.run_cmd(["shell", "getprop", "ro.product.model"], timeout=2)
+            if m_out.strip():
+                self._cached_model = m_out.strip()
+        if self._cached_model:
+            overview["model"] = self._cached_model
 
-        _, a_out, _ = self.adb.run_cmd(["shell", "getprop", "ro.build.version.release"], timeout=2)
-        if a_out.strip():
-            overview["android"] = f"Android {a_out.strip()}"
+        if not self._cached_android:
+            _, a_out, _ = self.adb.run_cmd(["shell", "getprop", "ro.build.version.release"], timeout=2)
+            if a_out.strip():
+                self._cached_android = f"Android {a_out.strip()}"
+        if self._cached_android:
+            overview["android"] = self._cached_android
 
         # 2. Battery Diagnostics
         _, b_out, _ = self.adb.run_cmd(["shell", "dumpsys", "battery"], timeout=3)
@@ -127,7 +138,7 @@ class TelemetryService:
         # 6. Network Latency
         gw = get_default_gateway()
         if gw:
-            ping_val = ping_host(gw, timeout_ms=500)
+            ping_val = ping_host(gw, timeout_ms=400)
             if ping_val is not None:
                 overview["ping_ms"] = round(ping_val, 1)
 

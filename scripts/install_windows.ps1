@@ -22,9 +22,17 @@ if (-not $PythonCmd) {
 $PyVer = python -c "import sys; print(sys.version.split()[0])"
 Write-Host "[*] Python Version: $PyVer (OK)" -ForegroundColor Green
 
-# 3. Check / Install PySide6
-Write-Host "[*] Verifying PySide6 (Qt 6)..." -ForegroundColor Yellow
-$HasPySide6 = python -c "import PySide6; print('OK')"
+# 3. Check / Install Python UI Engines (pywebview for 120 FPS Motion UI + PySide6)
+Write-Host "[*] Verifying Python UI Engines (pywebview & PySide6)..." -ForegroundColor Yellow
+$HasPyWebView = python -c "import webview; print('OK')" 2>$null
+if ($HasPyWebView -notmatch "OK") {
+    Write-Host "[*] Installing pywebview..." -ForegroundColor Yellow
+    pip install pywebview
+} else {
+    Write-Host "[OK] pywebview (Edge Chromium WebView2) is installed!" -ForegroundColor Green
+}
+
+$HasPySide6 = python -c "import PySide6; print('OK')" 2>$null
 if ($HasPySide6 -notmatch "OK") {
     Write-Host "[*] Installing PySide6..." -ForegroundColor Yellow
     pip install PySide6
@@ -80,12 +88,12 @@ Write-Host "[OK] Desktop shortcut created at: $ShortcutPath" -ForegroundColor Gr
 Write-Host "[OK] Start Menu shortcut created!" -ForegroundColor Green
 
 # 6. Create root launcher batch file for terminal access
-$BatContent = "@echo off`r`nstart `"`" `"$PythonwCmd`" `"$ProjectDir\honor-control-center.py`" %*`r`n"
+$BatContent = "@echo off`r`nstart `"`" `"$PythonwCmd`" `"$ProjectDir\honor-hub-motion.py`" %*`r`n"
 [System.IO.File]::WriteAllText("$ProjectDir\honor-hub.bat", $BatContent)
 Write-Host "[OK] honor-hub.bat created for 1-click execution!" -ForegroundColor Green
 
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host "  Installation Complete! You can now launch the app from:   " -ForegroundColor Green
 Write-Host "  1. Desktop shortcut: 'Honor Ecosystem Hub'               " -ForegroundColor White
-Write-Host "  2. Terminal command: python honor-control-center.py      " -ForegroundColor White
+Write-Host "  2. Terminal command: python honor-hub-motion.py          " -ForegroundColor White
 Write-Host "============================================================" -ForegroundColor Cyan

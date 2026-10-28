@@ -8,6 +8,7 @@ import sys
 import json
 import threading
 from typing import Dict, Any, List, Optional
+import webview
 
 from lib.honor_suite.core.adb_service import AdbService
 from lib.honor_suite.core.telemetry import TelemetryService
@@ -72,8 +73,8 @@ class HonorBridgeApi:
         return {"success": True, "message": "Beam cancelled"}
 
     # 3. Debloater API
-    def get_all_packages(self) -> List[Dict]:
-        return self.pm.get_all_packages()
+    def get_all_packages(self, force_refresh: bool = False) -> List[Dict]:
+        return self.pm.get_all_packages(force_refresh=force_refresh)
 
     def uninstall_packages(self, pkg_list: List[str]) -> Dict[str, Any]:
         success_count = 0
