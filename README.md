@@ -1,4 +1,4 @@
-# Honor Ecosystem Suite for Linux (MagicOS PC Suite)
+# Honor Ecosystem Suite (MagicOS PC Suite for Windows & Linux)
 
 <p align="center">
   <img src="desktop/honor-hub.svg" width="128" height="128" alt="Honor Ecosystem Hub Logo" />
@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Platform-Linux%20%28X11%20%7C%20Wayland%29-blue?style=flat-square&logo=linux" alt="Platform Linux" />
-  <img src="https://img.shields.io/badge/UI-GTK3%20%7C%20MagicOS%20Dark-8a2be2?style=flat-square" alt="GTK3 UI" />
+  <img src="https://img.shields.io/badge/Platform-Windows%2011%20%7C%2010%20%7C%20Linux-blue?style=flat-square&logo=windows" alt="Platform Windows & Linux" />
+  <img src="https://img.shields.io/badge/UI-PySide6%20%7C%20Qt6%20%7C%20GTK3-8a2be2?style=flat-square" alt="PySide6 UI" />
   <img src="https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square&logo=python" alt="Python Version" />
   <img src="https://img.shields.io/badge/Android-12%20%7C%2014%20%7C%2015%20%7C%2016-3DDC84?style=flat-square&logo=android" alt="Android Compatibility" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" />
@@ -84,6 +84,18 @@ Built strictly following **Design-First UI**, **Modular Components**, and a stri
 
 ### 🚀 Installation & Quick Start
 
+#### 🪟 Windows 11 / 10 Installation (Recommended)
+```powershell
+git clone https://github.com/boburhasanov/honor-ecosystem-suite.git
+cd honor-ecosystem-suite
+powershell -ExecutionPolicy Bypass -File .\scripts\install_windows.ps1
+```
+*Installs PySide6, verifies ADB/Scrcpy/FFmpeg, and creates an **Honor Ecosystem Hub** shortcut on your Desktop.*
+
+---
+
+#### 🐧 Linux (Ubuntu / Mint / Debian / Arch / Fedora)
+
 #### Option 1: Automated 1-Click Installer (Recommended)
 ```bash
 git clone https://github.com/boburhasanov/honor-ecosystem-suite.git
@@ -155,6 +167,18 @@ Ushbu loyiha **Design-First** (Zamonaviy Obsidian Dark dizayn), **Modulli arxite
 ---
 
 ### 🚀 O'rnatish va Ishga Tushirish
+
+#### 🪟 Windows 11 / 10 uchun O'rnatish (Tavsiya etiladi)
+```powershell
+git clone https://github.com/boburhasanov/honor-ecosystem-suite.git
+cd honor-ecosystem-suite
+powershell -ExecutionPolicy Bypass -File .\scripts\install_windows.ps1
+```
+*PySide6 ni sozlaydi, ADB, Scrcpy, FFmpeg dasturlarini tekshiradi va Ish stolida (Desktop) **"Honor Ecosystem Hub"** yorlig'ini yaratadi.*
+
+---
+
+#### 🐧 Linux (Ubuntu / Mint / Debian / Arch / Fedora)
 
 #### 1-usul: Avtomatlashtirilgan O'rnatuvchi (Tavsiya etiladi)
 ```bash
