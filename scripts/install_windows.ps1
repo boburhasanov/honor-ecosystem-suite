@@ -66,9 +66,13 @@ $StartMenuPath = Join-Path ([System.Environment]::GetFolderPath([System.Environm
 foreach ($linkPath in @($ShortcutPath, $StartMenuPath)) {
     $Shortcut = $WScriptShell.CreateShortcut($linkPath)
     $Shortcut.TargetPath = $PythonwCmd
-    $Shortcut.Arguments = "`"$ProjectDir\honor-control-center.py`""
+    $Shortcut.Arguments = "`"$ProjectDir\honor-hub-motion.py`""
     $Shortcut.WorkingDirectory = $ProjectDir
     $Shortcut.Description = "Honor Ecosystem Suite - MagicOS PC Suite for Android"
+    $IcoPath = "$ProjectDir\desktop\honor-hub.ico"
+    if (Test-Path $IcoPath) {
+        $Shortcut.IconLocation = $IcoPath
+    }
     $Shortcut.Save()
 }
 
